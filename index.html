@@ -42,6 +42,7 @@
   <div id="screen-info">
     <h2 style="color:var(--primary); margin-top:0; text-align:center;">Khảo Sát Kiến Thức Hóa Học</h2>
     
+    <!-- KHUNG QUẢN TRỊ DÀNH RIÊNG CHO GIÁO VIÊN (?gv=1) -->
     <div id="teacherControlPanel" class="teacher-box hidden">
       <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quản Trị & Tạo Link Thi</h3>
       <div class="form-group">
@@ -56,11 +57,11 @@
       <div id="generatedLinkBox" style="margin-top:12px; font-weight:bold; color:var(--primary); word-break: break-all; display:none;"></div>
       
       <hr style="border: 1px solid #d1fae5; margin: 16px 0;">
-      <button type="button" class="btn btn-secondary" onclick="toggleTeacherChatbox()">Mở Chatbox Soạn GA & Ra Đề (AI)</button>
+      <button type="button" class="btn btn-secondary" onclick="toggleTeacherChatbox()">Mở Chatbox Soạn Kế Hoạch & Ra Đề (AI)</button>
     </div>
 
     <div class="alert-box">
-      ⚠️ HỆ THỐNG GIÁM SÁT: Chỉ bấm được nút làm bài khi nhập đúng mã phòng thi do Giáo viên đọc trực tiếp tại lớp.
+      ⚠️ HỆ THỐNG GIÁM SÁT: Chỉ bấm được nút làm bài khi nhập đúng mã phòng thi do Giáo viên cấp trực tiếp tại lớp.
     </div>
 
     <div class="form-group">
@@ -104,7 +105,7 @@
     <div id="syncStatus" style="font-weight:600; margin-bottom: 16px; color: var(--secondary); text-align: center;">Đang xử lý kết quả...</div>
     <h3 style="border-top: 2px solid var(--border); padding-top: 16px; color: var(--primary);">Chi Tiết Bài Làm</h3>
     <div id="reviewContainer"></div>
-    <button class="btn btn-secondary" onclick="location.reload()">Trở Về Trang Chủ</button>
+    <div style="text-align: center; color: var(--red); font-weight: bold; margin-top: 20px;">Học sinh vui lòng đóng trình duyệt sau khi kiểm tra xong kết quả.</div>
   </div>
 
   <!-- CỬA SỔ CHATBOX CHUYÊN MÔN SƯ PHẠM -->
@@ -230,8 +231,7 @@
     { id: 105, type: "fib", text: "Phản ứng ester hóa là phản ứng ___ (thuận nghịch hay một chiều).", correct: "thuận nghịch", explain: "Cần xúc tác H2SO4 đặc và đun nóng, phản ứng 2 chiều." },
     { id: 106, type: "fib", text: "Chất béo là triester của acid béo với alcohol có tên là ___.", correct: "glixerol", explain: "Glycerol / Glixerol." },
     { id: 107, type: "fib", text: "Mùi chuối chín là của ester ___ acetate.", correct: "isoamyl", explain: "Isoamyl acetate có mùi chuối." },
-    { id: 108, type: "fib", text: "Trong phân tử ester no, đơn chức, mạch hở chứa đúng ___ liên kết pi.", correct: "1", explain: "1 liên kết pi ở nhóm chức -COO-." },
-    // Thầy nhân bản và thay nội dung để đủ 18 câu...
+    { id: 108, type: "fib", text: "Trong phân tử ester no, đơn chức, mạch hở chứa đúng ___ liên kết pi.", correct: "1", explain: "1 liên kết pi ở nhóm chức -COO-." }
   ];
 
   const bank_tf = [
@@ -239,7 +239,6 @@
     { id: 202, type: "tf", text: "Xét thí nghiệm điều chế ethyl acetate:", items: [ { label: "a) H2SO4 đặc hút nước chuyển dịch cân bằng.", correct: "Đ" }, { label: "b) NaCl bão hòa giúp ester dễ tách lớp.", correct: "Đ" }, { label: "c) Lớp ester nặng hơn chìm xuống dưới.", correct: "S" }, { label: "d) Có thể thay H2SO4 đặc bằng HCl đặc.", correct: "S" } ], explain: "Ester nhẹ hơn nước nên nổi lên trên." },
     { id: 203, type: "tf", text: "Tính chất vật lý của ester:", items: [ { label: "a) Nhiệt độ sôi thấp hơn acid cùng C.", correct: "Đ" }, { label: "b) Có liên kết hydrogen liên phân tử bền.", correct: "S" }, { label: "c) Hòa tan tốt nhiều chất hữu cơ.", correct: "Đ" }, { label: "d) Đều ở thể lỏng ở nhiệt độ thường.", correct: "S" } ], explain: "Mỡ động vật là chất béo thể rắn." },
     { id: 204, type: "tf", text: "Phản ứng của ester:", items: [ { label: "a) Thủy phân trong acid là thuận nghịch.", correct: "Đ" }, { label: "b) Mọi ester thủy phân đều ra alcohol.", correct: "S" }, { label: "c) Ester formate tráng bạc được.", correct: "Đ" }, { label: "d) Xà phòng hóa là phản ứng một chiều.", correct: "Đ" } ], explain: "Ester của phenol sinh ra 2 muối." }
-    // Thầy nhân bản và thay nội dung để đủ 12 câu...
   ];
 
   const bank_mcq = [
@@ -253,7 +252,6 @@
     { id: 308, type: "mcq", text: "Vai trò NaCl bão hòa trong điều chế ester:", options: ["Tăng khối lượng riêng để tách lớp", "Xúc tác", "Hút nước", "Trung hòa acid"], correct: "Tăng khối lượng riêng để tách lớp", explain: "Giúp ester nổi rõ lên trên." },
     { id: 309, type: "mcq", text: "Số liên kết pi trong ester no, đơn chức, mạch hở là:", options: ["1", "0", "2", "3"], correct: "1", explain: "1 liên kết pi ở C=O." },
     { id: 310, type: "mcq", text: "Thủy phân phenyl acetate trong NaOH dư cho mấy muối?", options: ["2", "1", "3", "0"], correct: "2", explain: "CH3COONa và C6H5ONa." }
-    // Thầy nhân bản và thay nội dung để đủ 30 câu...
   ];
 
   let studentExam = [];
@@ -287,8 +285,6 @@
     cheatCount = 0;
     document.getElementById('cheatWarning').style.display = "none";
 
-    // HỆ THỐNG TỰ ĐỘNG BỐC ĐÚNG SỐ LƯỢNG YÊU CẦU: 6 NGẮN - 4 Đ/S - 10 MCQ
-    // Nếu ngân hàng chưa đủ số lượng, hàm sẽ bốc tối đa số câu đang có
     const picked_fib = shuffle(bank_fib).slice(0, 6);
     const picked_tf = shuffle(bank_tf).slice(0, 4);
     const picked_mcq = shuffle(bank_mcq).slice(0, 10).map(q => {
@@ -311,7 +307,7 @@
       pTitle.innerText = part.partTitle;
       box.appendChild(pTitle);
 
-      let questionCounter = 1; // RESET ĐÁNH SỐ TỪ CÂU 1 Ở MỖI PHẦN
+      let questionCounter = 1;
 
       part.list.forEach(q => {
         const qDiv = document.createElement('div');
@@ -359,7 +355,7 @@
     let wrongList = [];
 
     studentExam.forEach(part => {
-      let count = 1; // Theo dõi số thứ tự câu trong từng phần
+      let count = 1;
       part.list.forEach(q => {
         totalQuestions++;
         if (q.type === 'fib') {
