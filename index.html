@@ -48,7 +48,7 @@
   <div id="screen-info">
     <h2 style="color:var(--primary); margin-top:0; text-align:center;">Khảo Sát Kiến Thức Hóa Học</h2>
     
-    <!-- KHUNG QUẢN TRỊ DÀNH RIÊNG CHO GIÁO VIÊN (Chỉ hiện khi có ?gv=1) -->
+    <!-- KHUNG QUẢN TRỊ DÀNH RIÊNG CHO GIÁO VIÊN (Chỉ hiện khi thêm ?gv=1 vào cuối link web) -->
     <div id="teacherControlPanel" class="teacher-box hidden">
       <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quyền Quản Trị Giáo Viên</h3>
       <div class="form-group">
@@ -103,7 +103,7 @@
       <p style="margin: 0; font-size: 20px;">Điểm số: <b id="resScore" style="color:var(--red); font-size: 32px;"></b></p>
       <p id="resCheat" style="color:var(--red); font-weight:bold; font-size:15px; margin-top: 10px;"></p>
     </div>
-    <div id="syncStatus" style="font-weight:600; margin-bottom: 16px; color: var(--secondary); text-align: center;">Đang gửi bảng điểm về máy Giáo viên...</div>
+    <div id="syncStatus" style="font-weight:600; margin-bottom: 16px; color: var(--secondary); text-align: center;">Đang xử lý kết quả...</div>
     <h3 style="border-top: 2px solid var(--border); padding-top: 16px; color: var(--primary);">Chi Tiết Bài Làm & Hướng Dẫn Giải</h3>
     <div id="reviewContainer"></div>
     <button class="btn btn-secondary" onclick="location.reload()">Trở Về Màn Hình Ban Đầu</button>
@@ -123,14 +123,14 @@
       <div class="form-group">
         <label>Nhiệm vụ sư phạm cần thực hiện:</label>
         <select id="aiTaskSelect">
-          <option value="ga5p">1. Soạn Kế hoạch bài dạy theo tiến trình 5P (Phát hiện - Khám phá - Phân tích - Phổ biến - Phát triển)</option>
-          <option value="de3part">2. Xây dựng Đề kiểm tra phân hóa cấu trúc mới 3 phần (Trắc nghiệm, Đúng/Sai, Trả lời ngắn)</option>
-          <option value="exitTicket">3. Thiết kế Phiếu kiểm tra nhanh 5 phút nắm bài tại lớp (Exit Ticket / Check-in)</option>
+          <option value="ga5p">1. Soạn Kế hoạch bài dạy theo tiến trình 5P</option>
+          <option value="de3part">2. Xây dựng Đề kiểm tra phân hóa cấu trúc mới 3 phần</option>
+          <option value="exitTicket">3. Thiết kế Phiếu kiểm tra nhanh nắm bài tại lớp (Exit Ticket)</option>
         </select>
       </div>
       <div class="form-group">
         <label>Chủ đề bài học & Yêu cầu trọng tâm:</label>
-        <textarea id="aiTopicInput" placeholder="Ví dụ: Ester - Lipid (Hóa 12), tập trung vào bản chất liên kết ester, hiện tượng xà phòng hóa, không tính toán phức tạp..."></textarea>
+        <textarea id="aiTopicInput" placeholder="Ví dụ: Bài Cân bằng hóa học lớp 11, tập trung nguyên lý chuyển dịch..."></textarea>
       </div>
       <div style="display:flex; gap:10px;">
         <button class="btn" onclick="executeAITask()" id="btnAIGenerate">Khởi Tạo Nội Dung Sư Phạm</button>
@@ -143,9 +143,9 @@
 </div>
 
 <script>
-  const FORMSPREE_URL = "https://formspree.io/f/mgaebavp";
+  // DÁN ĐƯỜNG LINK GOOGLE SHEETS HOẶC FORMSPREE CỦA THẦY VÀO TRONG DẤU NGOẶC KÉP BÊN DƯỚI NẾU CẦN THU ĐIỂM
+  const SCRIPT_URL = "DÁN_WEB_APP_URL_CỦA_THẦY_VÀO_ĐÂY";
   
-  // 1. CẤU HÌNH THỜI GIAN & MÃ BẢO MẬT (Đọc từ link URL)
   const urlParams = new URLSearchParams(window.location.search);
   let durationMinutes = parseInt(urlParams.get('time'), 10) || 15;
   let SECRET_PASSCODE = localStorage.getItem("chem_secret_pass") || "HOA12";
@@ -157,7 +157,6 @@
   let currentGeneratedDoc = "";
 
   window.addEventListener("DOMContentLoaded", () => {
-    // Nếu link có đuôi ?gv=1 sẽ mở quyền Giáo viên
     if (urlParams.get('gv') === '1') {
       document.getElementById('teacherControlPanel').classList.remove('hidden');
     }
@@ -181,7 +180,6 @@
     document.getElementById('modalTeacherAI').classList.toggle('hidden');
   }
 
-  // 2. HỌC SINH NHẬP MÃ PHÒNG ĐỂ MỞ NÚT THI
   function checkPasscode() {
     const inputCode = document.getElementById('roomPasscode').value.trim();
     const btn = document.getElementById('btnStartTest');
@@ -194,7 +192,6 @@
     }
   }
 
-  // 3. GIÁM SÁT THOÁT MÀN HÌNH
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && isExamActive) {
       cheatCount++;
@@ -214,20 +211,9 @@
     return a;
   }
 
-  // 4. KHO ĐỀ KHẢO BÀI (54 CÂU HÓA HỌC THPT)
   const bank_fib = [
     { id: 101, type: "fib", text: "Ester no, đơn chức, mạch hở có công thức chung là CnH2nO2 với điều kiện số nguyên tử C là n >= ___ (điền số).", correct: "2", explain: "Phân tử nhỏ nhất là HCOOCH3 (2 C), do đó n >= 2." },
-    { id: 102, type: "fib", text: "Phản ứng thủy phân ester trong môi trường kiềm (đun nóng) còn được gọi là phản ứng ___ hóa.", correct: "xà phòng", explain: "Thủy phân trong kiềm là phản ứng một chiều, gọi là phản ứng xà phòng hóa." },
-    { id: 103, type: "fib", text: "Thủy phân hoàn toàn 1 mol phenyl acetate (CH3COOC6H5) bằng dung dịch NaOH dư cần tối đa ___ mol NaOH (điền số).", correct: "2", explain: "Ester của phenol sinh ra natri phenolate tiếp tục phản ứng với NaOH, tổng cần 2 mol NaOH." },
-    { id: 104, type: "fib", text: "Đa số ester ở điều kiện thường nhẹ hơn ___ (điền tên chất) và rất ít tan trong dung môi này.", correct: "nước", explain: "Các ester thông thường có khối lượng riêng nhỏ hơn 1 g/cm3 và ít tan trong nước." },
-    { id: 105, type: "fib", text: "Phản ứng ester hóa giữa acid và alcohol xúc tác H2SO4 đặc là phản ứng ___ (thuận nghịch hay một chiều).", correct: "thuận nghịch", explain: "Phản ứng ester hóa là phản ứng thuận nghịch hai chiều." },
-    { id: 106, type: "fib", text: "Chất béo là triester của carboxylic acid mạch dài, không phân nhánh với ___ (điền tên alcohol).", correct: "glixerol", explain: "Chất béo (triglyceride) là triester của glycerol với các acid béo." },
-    { id: 107, type: "fib", text: "Ester isoamyl acetate có mùi thơm đặc trưng của quả ___ chín (điền tên quả).", correct: "chuối", explain: "Isoamyl acetate có mùi chuối chín." },
-    { id: 108, type: "fib", text: "Ester benzyl acetate có mùi thơm đặc trưng của hoa ___ (điền tên hoa).", correct: "nhài", explain: "Benzyl acetate mang mùi thơm hoa nhài." },
-    { id: 109, type: "fib", text: "Trong phân tử ester no, đơn chức, mạch hở chứa đúng ___ liên kết pi (điền số).", correct: "1", explain: "Chỉ có 1 liên kết pi nằm ở nhóm C=O của chức ester." },
-    { id: 110, type: "fib", text: "Thủy phân methyl formate thu được alcohol có tên là ___ (điền tên alcohol).", correct: "metanol", explain: "HCOOCH3 + H2O <-> HCOOH + CH3OH (methanol)." },
-    { id: 111, type: "fib", text: "Ester đơn chức có khả năng tham gia phản ứng tráng bạc phải chứa gốc acid mang tên ___ (điền tên gốc acid).", correct: "fomat", explain: "Gốc formate (HCOO-) giữ nhóm aldehyde (-CHO) nên tráng bạc được." },
-    { id: 112, type: "fib", text: "Chất béo chứa chủ yếu các gốc acid béo no ở trạng thái ___ ở điều kiện thường (rắn hay lỏng).", correct: "rắn", explain: "Chất béo no (như mỡ động vật) thường ở trạng thái rắn." }
+    { id: 102, type: "fib", text: "Phản ứng thủy phân ester trong môi trường kiềm (đun nóng) còn được gọi là phản ứng ___ hóa.", correct: "xà phòng", explain: "Thủy phân trong kiềm là phản ứng một chiều, gọi là phản ứng xà phòng hóa." }
   ];
 
   const bank_tf = [
@@ -239,47 +225,12 @@
         { label: "c) Thủy phân sinh ra ethyl alcohol.", correct: "S" },
         { label: "d) Có khả năng trùng hợp tạo polymer.", correct: "Đ" }
       ], explain: "Gốc vinyl gắn trực tiếp vào oxi tạo alcohol không bền chuyển thành aldehyde CH3CHO."
-    },
-    {
-      id: 202, type: "tf", text: "Xét thí nghiệm điều chế ethyl acetate:",
-      items: [
-        { label: "a) H2SO4 đặc vừa là chất xúc tác vừa có vai trò hút nước.", correct: "Đ" },
-        { label: "b) Thêm NaCl bão hòa để tăng khối lượng riêng lớp dưới, giúp ester tách lớp.", correct: "Đ" },
-        { label: "c) Lớp ester nhẹ hơn sẽ nổi lên trên.", correct: "Đ" },
-        { label: "d) Có thể thay H2SO4 đặc bằng HCl đặc với hiệu suất tương đương.", correct: "S" }
-      ], explain: "HCl dễ bay hơi và không háo nước mạnh như H2SO4 đặc."
-    },
-    {
-      id: 203, type: "tf", text: "Xét tính chất vật lý của ester:",
-      items: [
-        { label: "a) Nhiệt độ sôi của ester thấp hơn carboxylic acid có cùng số C.", correct: "Đ" },
-        { label: "b) Giữa các phân tử ester có liên kết hydrogen liên phân tử bền vững.", correct: "S" },
-        { label: "c) Đa số ester hòa tan tốt nhiều chất hữu cơ nên dùng làm dung môi.", correct: "Đ" },
-        { label: "d) Tất cả ester đều ở thể lỏng ở nhiệt độ thường.", correct: "S" }
-      ], explain: "Ester không tạo được liên kết hydrogen liên phân tử; chất béo rắn ở thể rắn."
-    },
-    {
-      id: 204, type: "tf", text: "Cấu tạo và phản ứng của ester:",
-      items: [
-        { label: "a) Phản ứng thủy phân trong môi trường acid là phản ứng thuận nghịch.", correct: "Đ" },
-        { label: "b) Mọi ester đơn chức khi thủy phân đều sinh ra đúng 1 alcohol.", correct: "S" },
-        { label: "c) Ester formate có khả năng tráng bạc.", correct: "Đ" },
-        { label: "d) Phản ứng xà phòng hóa luôn là phản ứng một chiều.", correct: "Đ" }
-      ], explain: "Ester của phenol sinh ra 2 muối, ester vinyl sinh ra aldehyde chứ không tạo alcohol."
     }
   ];
 
   const bank_mcq = [
     { id: 301, type: "mcq", text: "Hợp chất nào sau đây là ester no, đơn chức, mạch hở?", options: ["CH3COOCH3", "CH2=CHCOOCH3", "HCOOCH=CH2", "CH3COOH"], correct: "CH3COOCH3", explain: "CH3COOCH3 có CTPT C3H6O2 thỏa mãn CnH2nO2 (n >= 2)." },
-    { id: 302, type: "mcq", text: "Tên gọi của ester HCOOCH3 là:", options: ["Methyl formate", "Ethyl formate", "Methyl acetate", "Formic acid"], correct: "Methyl formate", explain: "Gốc methyl + formate = methyl formate." },
-    { id: 303, type: "mcq", text: "Ester nào sau đây có mùi chuối chín đặc trưng?", options: ["Isoamyl acetate", "Benzyl acetate", "Ethyl butyrate", "Geranyl acetate"], correct: "Isoamyl acetate", explain: "Isoamyl acetate có mùi chuối chín." },
-    { id: 304, type: "mcq", text: "Sản phẩm hữu cơ luôn luôn xuất hiện khi thủy phân ester trong dung dịch NaOH là:", options: ["Muối của carboxylic acid", "Alcohol", "Aldehyde", "Ketone"], correct: "Muối của carboxylic acid", explain: "Luôn thu được muối của acid carboxylic." },
-    { id: 305, type: "mcq", text: "Ester nào sau đây có khả năng tham gia phản ứng tráng bạc?", options: ["HCOOC2H5", "CH3COOC2H5", "C2H5COOCH3", "CH3COOCH3"], correct: "HCOOC2H5", explain: "Ester formate có nhóm -CHO nên tráng bạc được." },
-    { id: 306, type: "mcq", text: "Đun nóng ethyl propionate với dung dịch NaOH dư thu được muối nào sau đây?", options: ["C2H5COONa", "CH3COONa", "HCOONa", "C3H7COONa"], correct: "C2H5COONa", explain: "C2H5COOC2H5 + NaOH -> C2H5COONa + C2H5OH." },
-    { id: 307, type: "mcq", text: "Nhiệt độ sôi của ethyl acetate thấp hơn nhiều so với acetic acid cùng số C vì:", options: ["Ester không tạo được liên kết hydrogen liên phân tử", "Ester có khối lượng phân tử bé hơn", "Ester có tính phân cực mạnh hơn", "Ester tan kém trong nước"], correct: "Ester không tạo được liên kết hydrogen liên phân tử", explain: "Ester không có H linh động nên không tạo liên kết H liên phân tử." },
-    { id: 308, type: "mcq", text: "Thủy phân vinyl acetate trong dung dịch kiềm sinh ra sản phẩm gồm muối và:", options: ["Acetaldehyde", "Ethyl alcohol", "Vinyl alcohol", "Acetone"], correct: "Acetaldehyde", explain: "Alcohol sinh ra không bền chuyển thành aldehyde CH3CHO." },
-    { id: 309, type: "mcq", text: "Vai trò chính của dung dịch NaCl bão hòa trong thí nghiệm điều chế ester là:", options: ["Tăng khối lượng riêng giúp ester dễ tách lớp", "Xúc tác phản ứng hóa học", "Hút nước chuyển dịch cân bằng", "Trung hòa lượng acid dư"], correct: "Tăng khối lượng riêng giúp ester dễ tách lớp", explain: "NaCl bão hòa làm tăng tỉ trọng lớp chất lỏng bên dưới." },
-    { id: 310, type: "mcq", text: "Số liên kết pi (π) trong phân tử ester no, đơn chức, mạch hở là:", options: ["1", "0", "2", "3"], correct: "1", explain: "Chỉ có 1 liên kết pi tại nhóm C=O." }
+    { id: 302, type: "mcq", text: "Tên gọi của ester HCOOCH3 là:", options: ["Methyl formate", "Ethyl formate", "Methyl acetate", "Formic acid"], correct: "Methyl formate", explain: "Gốc methyl + formate = methyl formate." }
   ];
 
   let studentExam = [];
@@ -317,9 +268,9 @@
     cheatCount = 0;
     document.getElementById('cheatWarning').style.display = "none";
 
-    const picked_fib = shuffle(bank_fib).slice(0, 4);
-    const picked_tf = shuffle(bank_tf).slice(0, 4);
-    const picked_mcq = shuffle(bank_mcq).slice(0, 10).map(q => {
+    const picked_fib = shuffle(bank_fib).slice(0, 2);
+    const picked_tf = shuffle(bank_tf).slice(0, 1);
+    const picked_mcq = shuffle(bank_mcq).slice(0, 2).map(q => {
       let qCopy = {...q}; qCopy.options = shuffle(q.options); return qCopy;
     });
 
@@ -451,33 +402,32 @@
     document.getElementById('screen-exam').classList.add('hidden');
     document.getElementById('screen-result').classList.remove('hidden');
 
-    const payload = {
-      ThoiGian: new Date().toLocaleString("vi-VN"),
-      HoTen: studentInfo.name,
-      Lop_SoMay: studentInfo.sClass,
-      ThoiLuongThi: `${durationMinutes} phút`,
-      DiemSo: score,
-      SoCauDung: `${correctCount}/${totalQuestions}`,
-      CacCauSai: wrongSummary,
-      ViPham: `${cheatCount} lần thoát màn hình`
-    };
+    if (SCRIPT_URL.includes("http")) {
+      const payload = {
+        ThoiGian: new Date().toLocaleString("vi-VN"),
+        HoTen: studentInfo.name,
+        Lop_SoMay: studentInfo.sClass,
+        MaPhong: SECRET_PASSCODE,
+        DiemSo: score,
+        SoCauDung: `${correctCount}/${totalQuestions}`,
+        CacCauSai: wrongSummary,
+        ViPham: `${cheatCount} lần thoát màn hình`
+      };
 
-    fetch(FORMSPREE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify(payload)
-    }).then(res => {
-      if (res.ok) {
-        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--green)">✓ Đã nộp bảng điểm và báo cáo về máy Giáo viên!</span>`;
-      } else {
-        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi kết nối mạng khi lưu bài.</span>`;
-      }
-    }).catch(err => {
-      document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi: ${err}</span>`;
-    });
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--green)">✓ Đã nộp bảng điểm thành công!</span>`;
+      }).catch(err => {
+        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi kết nối mạng: ${err}</span>`;
+      });
+    } else {
+      document.getElementById('syncStatus').innerHTML = `<span style="color:var(--secondary)">Bài thi đã được lưu trên máy.</span>`;
+    }
   }
 
-  // 5. LOGIC CHATBOX SƯ PHẠM HÓA HỌC THPT
+  // LOGIC CHATBOX SƯ PHẠM HÓA HỌC THPT (DÀNH CHO GIÁO VIÊN)
   async function executeAITask() {
     const key = document.getElementById('aiApiKey').value.trim();
     const task = document.getElementById('aiTaskSelect').value;
@@ -496,11 +446,11 @@
 
     let prompt = "Tôi là giáo viên Hóa học THPT có nhiều năm kinh nghiệm giảng dạy. ";
     if (task === 'ga5p') {
-      prompt += `Hãy soạn Kế hoạch bài dạy chi tiết theo tiến trình 5P (Phát hiện - Khám phá - Phân tích - Phổ biến - Phát triển) cho bài: "${topic}". Yêu cầu làm rõ 3 năng lực đặc thù Hóa học (nhận thức, tìm hiểu thế giới tự nhiên, vận dụng), chuỗi hoạt động dạy - học rõ ràng, đính kèm phiếu học tập nhóm và bảng tiêu chí đánh giá (Rubric).`;
+      prompt += `Hãy soạn Kế hoạch bài dạy chi tiết theo tiến trình 5P cho bài: "${topic}". Yêu cầu làm rõ 3 năng lực đặc thù Hóa học (nhận thức, tìm hiểu thế giới tự nhiên, vận dụng), chuỗi hoạt động dạy - học rõ ràng, đính kèm phiếu học tập nhóm và bảng tiêu chí đánh giá (Rubric).`;
     } else if (task === 'de3part') {
-      prompt += `Hãy xây dựng Đề kiểm tra Hóa học THPT về chủ đề: "${topic}" theo cấu trúc 3 phần mới (Phần I: 18 câu trắc nghiệm nhiều phương án; Phần II: 4 câu Đúng/Sai 4 ý; Phần III: 6 câu trả lời ngắn). Thuần lý thuyết bản chất và hiện tượng thực tế, kèm ma trận, đáp án và lời giải chi tiết.`;
+      prompt += `Hãy xây dựng Đề kiểm tra Hóa học THPT về chủ đề: "${topic}" theo cấu trúc 3 phần mới (Phần I: Trắc nghiệm nhiều phương án; Phần II: Đúng/Sai 4 ý; Phần III: Trả lời ngắn). Thuần lý thuyết bản chất và hiện tượng thực tế, kèm ma trận, đáp án và lời giải chi tiết.`;
     } else {
-      prompt += `Hãy thiết kế Phiếu kiểm tra nhanh 5 phút (Exit Ticket) đánh giá mức độ nắm bài về "${topic}" gồm 4 câu hỏi: 2 câu điền khuyết bản chất, 1 câu giải thích hiện tượng thí nghiệm, 1 câu nhận diện chất, kèm đáp án ngắn gọn.`;
+      prompt += `Hãy thiết kế Phiếu kiểm tra nhanh 5 phút (Exit Ticket) đánh giá mức độ nắm bài về "${topic}" gồm 4 câu hỏi: điền khuyết bản chất, hiện tượng thí nghiệm, nhận diện chất, kèm đáp án ngắn gọn.`;
     }
 
     try {
