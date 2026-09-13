@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Khảo Sát Hóa Học THPT - Quản Lý Phòng Thi</title>
+  <title>Khảo Sát Hóa Học THPT</title>
   <style>
     :root {
       --primary: #1e3a8a; --secondary: #0284c7; --bg: #f8fafc; --card: #ffffff;
@@ -15,10 +15,11 @@
     .hidden { display: none !important; }
     .form-group { margin-bottom: 16px; }
     label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 15px; }
-    input[type="text"], input[type="password"], input[type="number"], select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; }
+    input[type="text"], input[type="password"], input[type="number"], textarea, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; }
+    textarea { height: 110px; resize: vertical; }
     .btn { background: var(--primary); color: #fff; border: none; padding: 14px 20px; font-size: 16px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; }
-    .btn:disabled { background: #94a3b8; cursor: not-allowed; }
-    .btn-green { background: var(--green); margin-top: 16px; }
+    .btn-green { background: var(--green); margin-top: 12px; }
+    .btn-green:hover { background: #15803d; }
     .btn-secondary { background: var(--secondary); margin-top: 12px; }
     .question-box { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
     .part-title { color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 6px; margin-top: 24px; margin-bottom: 14px; font-size: 18px; }
@@ -32,58 +33,34 @@
     .badge-fail { background: #fee2e2; color: var(--red); }
     .alert-box { background: #fffbeb; border: 2px solid #f59e0b; color: #d97706; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-weight: bold; text-align: center; }
     
-    /* Khu vực Giáo viên */
-    .teacher-setting-box { background: #f1f5f9; border: 1px dashed #94a3b8; border-radius: 8px; padding: 14px; margin-bottom: 16px; }
-    .teacher-title { font-size: 14px; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-    
-    /* Thanh trạng thái khi làm bài */
-    .exam-header-sticky {
-      position: sticky; top: 0; background: #ffffff; z-index: 99;
-      border-bottom: 2px solid var(--border); padding: 12px 0; margin-bottom: 16px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .timer-badge { background: var(--red); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+    .teacher-box { background: #f0fdf4; border: 2px solid var(--green); border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+    .exam-header-sticky { position: sticky; top: 0; background: #fff; z-index: 99; border-bottom: 2px solid var(--border); padding: 12px 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .timer-badge { background: var(--red); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 18px; font-weight: bold; }
   </style>
 </head>
 <body>
 
 <div class="container">
 
-  <!-- MÀN HÌNH ĐĂNG NHẬP HỌC SINH & CÀI ĐẶT GIÁO VIÊN -->
+  <!-- MÀN HÌNH ĐĂNG NHẬP -->
   <div id="screen-info">
     <h2 style="color:var(--primary); margin-top:0; text-align:center;">Khảo Sát Kiến Thức Hóa Học</h2>
     
-    <!-- KHUNG ĐIỀU CHỈNH PHÒNG THI DÀNH CHO GIÁO VIÊN -->
-    <div class="teacher-setting-box">
-      <div class="teacher-title" onclick="toggleTeacherConfig()">
-        <span>⚙️ Bảng Điều Khiển Phòng Thi (Dành cho Giáo viên)</span>
-        <span id="teacherToggleIcon" style="font-size:12px; color:#64748b;">[Nhấn để mở]</span>
+    <!-- KHUNG ĐIỀU KHIỂN RIÊNG DÀNH CHO GIÁO VIÊN (TỰ ĐỘNG HIỆN NẾU LÀ GV) -->
+    <div id="teacherControlPanel" class="teacher-box hidden">
+      <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quyền Quản Trị Giáo Viên</h3>
+      <div class="form-group">
+        <label>Cài đặt thời gian làm bài cho lượt này (Phút):</label>
+        <input type="number" id="gvSetMinutes" value="15" min="1" max="90">
       </div>
-      <div id="teacherConfigForm" class="hidden" style="margin-top: 12px;">
-        <div class="form-group" style="margin-bottom: 8px;">
-          <label style="font-size: 13px;">Mã PIN Giáo viên (Mặc định: 1234):</label>
-          <div style="display:flex; gap:8px;">
-            <input type="password" id="teacherPin" placeholder="Nhập PIN..." style="padding: 8px 12px;">
-            <button type="button" class="btn" style="width: auto; padding: 8px 16px; font-size: 14px;" onclick="unlockTeacherSettings()">Xác nhận PIN</button>
-          </div>
-        </div>
-        <div id="teacherControls" class="hidden">
-          <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px;">
-            <div>
-              <label style="font-size: 13px;">Cài đặt thời gian làm bài (Phút):</label>
-              <input type="number" id="customMinutes" value="15" min="1" max="90" style="padding: 8px 12px;">
-            </div>
-          </div>
-          <button type="button" class="btn btn-green" style="margin-top: 12px; padding: 10px; font-size: 15px;" onclick="openRoomForStudents()">🚀 Mở Phòng Thi & Kích Hoạt Đồng Hồ Cho Học Sinh</button>
-        </div>
-      </div>
+      <button type="button" class="btn btn-green" onclick="saveTeacherTime()">Lưu Thời Gian & Mở Phòng Thi</button>
+      <button type="button" class="btn btn-secondary" onclick="toggleAssistantModal()">Mở Trợ Lý Soạn GA & Ra Đề (AI)</button>
     </div>
 
     <div class="alert-box">
-      ⚠️ TRẠNG THÁI PHÒNG THI: <span id="roomStatusText" style="color: var(--red);">CHƯA MỞ (Chờ Giáo viên kích hoạt)</span>
+      ⚠️ HỆ THỐNG GIÁM SÁT: Thoát màn hình hoặc chuyển tab sẽ bị ghi nhận lỗi gian lận.
     </div>
 
-    <!-- THÔNG TIN HỌC SINH -->
     <div class="form-group">
       <label>Họ và tên học sinh:</label>
       <input type="text" id="stuName" placeholder="Nhập đầy đủ họ tên...">
@@ -93,23 +70,21 @@
       <input type="text" id="stuClass" placeholder="Ví dụ: 12A1 - Máy 05">
     </div>
     <div style="margin-bottom: 16px; font-weight: 600; color: #475569; font-size: 14px;">
-      Thời gian phòng thi: <span id="currentDurationDisplay" style="color:var(--red); font-size:16px;">Chưa cài đặt</span>
+      Thời gian làm bài: <span id="currentDurationDisplay" style="color:var(--primary); font-size:16px;">15 phút</span>
     </div>
 
-    <!-- Nút làm bài bị khóa cho đến khi GV mở -->
-    <button class="btn" id="btnStartTest" onclick="startTest()" disabled style="background: #94a3b8; cursor: not-allowed;">Chờ Giáo Viên Mở Phòng Thi...</button>
+    <button class="btn" id="btnStartTest" onclick="startTest()">Bắt Đầu Làm Bài</button>
   </div>
 
-  <!-- MÀN HÌNH LÀM BÀI CÓ ĐỒNG HỒ -->
+  <!-- MÀN HÌNH LÀM BÀI -->
   <div id="screen-exam" class="hidden">
     <div class="exam-header-sticky">
       <div>
         <b id="examHeader" style="color:var(--primary); font-size:17px; display:block;"></b>
         <span id="cheatWarning" style="color:var(--red); font-weight:bold; font-size:13px; display: none;"></span>
       </div>
-      <div class="timer-badge" id="timerBadge">00:00</div>
+      <div class="timer-badge" id="timerBadge">15:00</div>
     </div>
-
     <div id="examContainer"></div>
     <button class="btn btn-green" id="btnSubmitExam" onclick="submitExam(false)">Nộp Bài Khảo Sát</button>
   </div>
@@ -122,69 +97,77 @@
       <p style="margin: 0; font-size: 20px;">Điểm số: <b id="resScore" style="color:var(--red); font-size: 32px;"></b></p>
       <p id="resCheat" style="color:var(--red); font-weight:bold; font-size:15px; margin-top: 10px;"></p>
     </div>
-    
     <div id="syncStatus" style="font-weight:600; margin-bottom: 16px; color: var(--secondary); text-align: center;">Đang gửi bảng điểm về máy Giáo viên...</div>
-
     <h3 style="border-top: 2px solid var(--border); padding-top: 16px; color: var(--primary);">Chi Tiết Bài Làm & Hướng Dẫn Giải</h3>
     <div id="reviewContainer"></div>
     <button class="btn btn-secondary" onclick="location.reload()">Trở Về Màn Hình Ban Đầu</button>
   </div>
 
+  <!-- CỬA SỔ CHATBOX CHUYÊN MÔN DÀNH CHO GIÁO VIÊN -->
+  <div id="modalAssistant" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px;">
+    <div style="background: #fff; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 16px;">
+        <h3 style="margin:0; color:var(--primary);">🧪 Trợ Lý Chuyên Môn Sư Phạm Hóa Học THPT</h3>
+        <button onclick="toggleAssistantModal()" style="background:none; border:none; font-size:22px; cursor:pointer;">✖</button>
+      </div>
+      <div class="form-group">
+        <label>Gemini API Key của Thầy:</label>
+        <input type="password" id="modalKey" placeholder="Dán mã API Key tại đây...">
+      </div>
+      <div class="form-group">
+        <label>Nhiệm vụ chuyên môn:</label>
+        <select id="modalTask">
+          <option value="ga">1. Soạn Giáo án theo tiến trình 5P (Phát triển năng lực)</option>
+          <option value="de">2. Ra đề kiểm tra cấu trúc mới 3 phần (Trắc nghiệm, Đúng/Sai, Trả lời ngắn)</option>
+          <option value="kt">3. Phiếu kiểm tra kiến thức nắm bài nhanh tại lớp (Exit Ticket)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Chủ đề bài học:</label>
+        <textarea id="modalTopic" placeholder="Ví dụ: Ester - Lipid (Hóa 12), tập trung vào phản ứng xà phòng hóa, tính chất este không no..."></textarea>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn" onclick="callAssistantAI()" id="btnRunAI">Khởi Tạo Nội Dung</button>
+        <button class="btn btn-green" onclick="exportWordFromModal()" id="btnModalWord" style="display:none; width:auto;">Tải Bản Word (.doc)</button>
+      </div>
+      <div id="modalOutput" style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:16px; margin-top:16px; min-height:160px; white-space:pre-wrap; line-height:1.6;">Nội dung AI sẽ xuất hiện tại đây...</div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-  const FORMSPREE_URL = "https://formspree.io/f/mgaebavp"; 
-  const TEACHER_PIN = "1234"; // Mã PIN giáo viên
-
-  let durationMinutes = 0;
+  const FORMSPREE_URL = "https://formspree.io/f/mgaebavp";
+  let durationMinutes = parseInt(localStorage.getItem("gv_exam_duration")) || 15;
   let timerInterval = null;
   let secondsLeft = 0;
   let isExamActive = false;
   let cheatCount = 0;
+  let aiOutputText = "";
 
-  function toggleTeacherConfig() {
-    const box = document.getElementById('teacherConfigForm');
-    const icon = document.getElementById('teacherToggleIcon');
-    if (box.classList.contains('hidden')) {
-      box.classList.remove('hidden');
-      icon.innerText = "[Thu gọn]";
-    } else {
-      box.classList.add('hidden');
-      icon.innerText = "[Nhấn để mở]";
+  // TỰ ĐỘNG PHÁT HIỆN GIÁO VIÊN QUA ĐƯỜNG DẪN (?gv=1)
+  window.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('gv') === '1') {
+      document.getElementById('teacherControlPanel').classList.remove('hidden');
     }
-  }
-
-  function unlockTeacherSettings() {
-    const pin = document.getElementById('teacherPin').value.trim();
-    if (pin === TEACHER_PIN) {
-      document.getElementById('teacherControls').classList.remove('hidden');
-      alert("Đã mở khóa quyền Giáo viên thành công!");
-    } else {
-      alert("Mã PIN không chính xác!");
-    }
-  }
-
-  // GIÁO VIÊN BẤM MỞ PHÒNG THI
-  function openRoomForStudents() {
-    const minInput = document.getElementById('customMinutes').value;
-    durationMinutes = parseInt(minInput, 10);
-    if (!durationMinutes || durationMinutes <= 0) {
-      alert("Vui lòng nhập số phút hợp lệ!");
-      return;
-    }
-
-    document.getElementById('currentDurationDisplay.innerText = durationMinutes + " phút"';
     document.getElementById('currentDurationDisplay').innerText = durationMinutes + " phút";
-    document.getElementById('roomStatusText').innerText = "PHÒNG ĐÃ MỞ (Sẵn sàng làm bài)";
-    document.getElementById('roomStatusText').style.color = "var(--green)";
+    document.getElementById('gvSetMinutes').value = durationMinutes;
+  });
 
-    const btnStart = document.getElementById('btnStartTest');
-    btnStart.disabled = false;
-    btnStart.style.background = "var(--primary)";
-    btnStart.style.cursor = "pointer";
-    btnStart.innerText = "Bắt Đầu Làm Bài";
+  function saveTeacherTime() {
+    const val = parseInt(document.getElementById('gvSetMinutes').value, 10);
+    if (val > 0) {
+      durationMinutes = val;
+      localStorage.setItem("gv_exam_duration", val);
+      document.getElementById('currentDurationDisplay').innerText = val + " phút";
+      alert("Đã cập nhật thời gian làm bài thành công: " + val + " phút!");
+    }
+  }
 
-    alert(`Đã mở phòng thi thành công với thời gian ${durationMinutes} phút! Học sinh có thể bấm bắt đầu.`);
+  function toggleAssistantModal() {
+    const m = document.getElementById('modalAssistant');
+    m.classList.toggle('hidden');
   }
 
   // GIÁM SÁT THOÁT MÀN HÌNH
@@ -194,7 +177,7 @@
       const cheatLabel = document.getElementById('cheatWarning');
       cheatLabel.style.display = "block";
       cheatLabel.innerText = `Cảnh báo vi phạm: ${cheatCount} lần`;
-      alert("⚠️ CẢNH BÁO: Em vừa rời khỏi màn hình làm bài! Hành động này đã được ghi nhận.");
+      alert("⚠️ CẢNH BÁO: Em vừa rời khỏi màn hình làm bài! Lỗi vi phạm đã được ghi nhận.");
     }
   });
 
@@ -207,7 +190,7 @@
     return a;
   }
 
-  // KHO ĐỀ (54 CÂU ĐÃ CHUẨN HÓA)
+  // KHO ĐỀ CHUẨN (54 CÂU)
   const bank_fib = [
     { id: 101, type: "fib", text: "Ester no, đơn chức, mạch hở có công thức chung là CnH2nO2 với điều kiện số nguyên tử C là n >= ___ (điền số).", correct: "2", explain: "Phân tử nhỏ nhất là HCOOCH3 (2 C), do đó n >= 2." },
     { id: 102, type: "fib", text: "Phản ứng thủy phân ester trong môi trường kiềm (đun nóng) còn được gọi là phản ứng ___ hóa.", correct: "xà phòng", explain: "Thủy phân trong kiềm là phản ứng một chiều, gọi là phản ứng xà phòng hóa." },
@@ -216,7 +199,7 @@
     { id: 105, type: "fib", text: "Phản ứng ester hóa giữa acid và alcohol xúc tác H2SO4 đặc là phản ứng ___ (thuận nghịch hay một chiều).", correct: "thuận nghịch", explain: "Phản ứng ester hóa là phản ứng thuận nghịch hai chiều." },
     { id: 106, type: "fib", text: "Chất béo là triester của carboxylic acid mạch dài, không phân nhánh với ___ (điền tên alcohol).", correct: "glixerol", explain: "Chất béo (triglyceride) là triester của glycerol với các acid béo." },
     { id: 107, type: "fib", text: "Ester isoamyl acetate có mùi thơm đặc trưng của quả ___ chín (điền tên quả).", correct: "chuối", explain: "Isoamyl acetate có mùi chuối chín." },
-    { id: 108, type: "fib", text: "Ester benzyl acetate có mùi thơm đặc trưng của hoa ___ (điền tên hoa).", correct: "nhài", explain: "Benzyl acetate mang thơm hoa nhài." },
+    { id: 108, type: "fib", text: "Ester benzyl acetate có mùi thơm đặc trưng của hoa ___ (điền tên hoa).", correct: "nhài", explain: "Benzyl acetate mang mùi thơm hoa nhài." },
     { id: 109, type: "fib", text: "Trong phân tử ester no, đơn chức, mạch hở chứa đúng ___ liên kết pi (điền số).", correct: "1", explain: "Chỉ có 1 liên kết pi nằm ở nhóm C=O của chức ester." },
     { id: 110, type: "fib", text: "Thủy phân methyl formate thu được alcohol có tên là ___ (điền tên alcohol).", correct: "metanol", explain: "HCOOCH3 + H2O <-> HCOOH + CH3OH (methanol)." },
     { id: 111, type: "fib", text: "Ester đơn chức có khả năng tham gia phản ứng tráng bạc phải chứa gốc acid mang tên ___ (điền tên gốc acid).", correct: "fomat", explain: "Gốc formate (HCOO-) giữ nhóm aldehyde (-CHO) nên tráng bạc được." },
@@ -470,6 +453,78 @@
     }).catch(err => {
       document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi: ${err}</span>`;
     });
+  }
+
+  // TRỢ LÝ AI CHUYÊN MÔN
+  async function callAssistantAI() {
+    const key = document.getElementById('modalKey').value.trim();
+    const task = document.getElementById('modalTask').value;
+    const topic = document.getElementById('modalTopic').value.trim();
+    const out = document.getElementById('modalOutput');
+    const btn = document.getElementById('btnRunAI');
+    const btnWord = document.getElementById('btnModalWord');
+
+    if (!key) { alert("Vui lòng nhập API Key!"); return; }
+    if (!topic) { alert("Vui lòng nhập chủ đề bài học!"); return; }
+
+    btn.disabled = true;
+    btnWord.style.display = "none";
+    out.innerText = "Trợ lý AI đang soạn thảo chuyên môn...";
+
+    let prompt = "Tôi là giáo viên Hóa học THPT nhiều năm kinh nghiệm. ";
+    if (task === 'ga') {
+      prompt += `Hãy soạn Kế hoạch bài dạy chi tiết theo tiến trình 5P cho bài: "${topic}". Làm rõ 3 năng lực đặc thù Hóa học, hoạt động dạy - học rõ ràng, đính kèm phiếu học tập nhóm và rubric đánh giá.`;
+    } else if (task === 'de') {
+      prompt += `Hãy xây dựng Đề kiểm tra Hóa học THPT về chủ đề: "${topic}" theo cấu trúc 3 phần mới (Trắc nghiệm nhiều lựa chọn, Đúng/Sai 4 ý, Trả lời ngắn). Thuần lý thuyết bản chất, hiện tượng thực tế, có đáp án và giải thích chi tiết.`;
+    } else {
+      prompt += `Hãy thiết kế Phiếu kiểm tra nhanh 5 phút (Exit Ticket) bài "${topic}" gồm 4 câu hỏi: điền khuyết bản chất, hiện tượng thí nghiệm, nhận diện chất, kèm đáp án ngắn gọn.`;
+    }
+
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+      const data = await response.json();
+      if (data.candidates && data.candidates[0].content.parts[0].text) {
+        aiOutputText = data.candidates[0].content.parts[0].text;
+        out.innerText = aiOutputText;
+        btnWord.style.display = "inline-block";
+      } else {
+        out.innerText = "Lỗi phản hồi từ AI: " + JSON.stringify(data);
+      }
+    } catch (e) {
+      out.innerText = "Lỗi kết nối: " + e.message;
+    }
+    btn.disabled = false;
+  }
+
+  function exportWordFromModal() {
+    if (!aiOutputText) return;
+    let formattedHtml = aiOutputText
+      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+      .replace(/\*(.*?)\*/g, '<i>$1</i>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+
+    const docContent = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head><meta charset='utf-8'><title>TaiLieu_ChuyenMon_HoaHoc</title></head>
+      <body style="font-family: Arial; font-size: 13pt; line-height: 1.4;">
+        <h2 style="color: #1e3a8a; text-align: center;">TÀI LIỆU CHUYÊN MÔN HÓA HỌC THPT</h2>
+        <p>${formattedHtml}</p>
+      </body>
+      </html>
+    `;
+    const blob = new Blob(['\ufeff', docContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'TaiLieu_ChuyenMon_HoaHoc.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 </script>
 </body>
