@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khảo Sát Hóa Học THPT - Giám Sát & Hẹn Giờ</title>
+  <style>
+    :root {
+      --primary: #1e3a8a; --secondary: #0284c7; --bg: #f8fafc; --card: #ffffff;
+      --border: #cbd5e1; --green: #16a34a; --red: #dc2626; --text: #0f172a;
+    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 16px; margin: 0; line-height: 1.5; }
+    .container { max-width: 850px; margin: 0 auto; background: var(--card); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .hidden { display: none !important; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 15px; }
+    input[type="text"], input[type="password"], input[type="number"], select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 14px 20px; font-size: 16px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; border-radius: 8px; }
+    .btn-green { background: var(--green); margin-top: 16px; }
+    .btn-green:hover { background: #15803d; }
+    .btn-secondary { background: var(--secondary); margin-top: 12px; }
+    .question-box { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }
+    .part-title { color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 6px; margin-top: 24px; margin-bottom: 14px; font-size: 18px; }
+    .opt-label { display: block; padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 15px; }
+    .opt-label input { margin-right: 12px; transform: scale(1.2); }
+    .tf-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 15px; }
+    .tf-options label { margin-left: 14px; cursor: pointer; font-weight: 600; }
+    .explanation { margin-top: 12px; padding: 12px; background: #eff6ff; border-left: 4px solid var(--secondary); font-size: 14px; border-radius: 0 6px 6px 0; line-height: 1.5; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 13px; margin-bottom: 8px; }
+    .badge-pass { background: #dcfce7; color: var(--green); }
+    .badge-fail { background: #fee2e2; color: var(--red); }
+    .alert-box { background: #fffbeb; border: 2px solid #f59e0b; color: #d97706; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-weight: bold; text-align: center; }
+    
+    /* Khung cài đặt dành riêng cho Giáo viên */
+    .teacher-setting-box { background: #f1f5f9; border: 1px dashed #94a3b8; border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+    .teacher-title { font-size: 14px; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    
+    /* Thanh trạng thái và đồng hồ đếm ngược */
+    .exam-header-sticky {
+      position: sticky; top: 0; background: #ffffff; z-index: 99;
+      border-bottom: 2px solid var(--border); padding: 12px 0; margin-bottom: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .timer-badge { background: var(--red); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- MÀN HÌNH ĐĂNG NHẬP & THIẾT LẬP GIÁO VIÊN -->
+  <div id="screen-info">
+    <h2 style="color:var(--primary); margin-top:0; text-align:center;">Khảo Sát Kiến Thức Hóa Học</h2>
+    
+    <!-- KHUNG ĐIỀU CHỈNH THỜI GIAN (CHỈ DÀNH CHO GIÁO VIÊN) -->
+    <div class="teacher-setting-box">
+      <div class="teacher-title" onclick="toggleTeacherConfig()">
+        <span>⚙️ Thiết lập phòng thi & Thời gian (Dành cho Giáo viên)</span>
+        <span id="teacherToggleIcon" style="font-size:12px; color:#64748b;">[Nhấn để mở]</span>
+      </div>
+      <div id="teacherConfigForm" class="hidden" style="margin-top: 12px;">
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label style="font-size: 13px;">Nhập mã PIN Giáo viên (Mặc định: 1234):</label>
+          <div style="display:flex; gap:8px;">
+            <input type="password" id="teacherPin" placeholder="Nhập PIN..." style="padding: 8px 12px;">
+            <button type="button" class="btn" style="width: auto; padding: 8px 16px; font-size: 14px;" onclick="unlockTeacherSettings()">Mở khóa</button>
+          </div>
+        </div>
+        <div id="teacherControls" class="hidden">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+            <div>
+              <label style="font-size: 13px;">Thời gian làm bài (Phút):</label>
+              <input type="number" id="customMinutes" value="15" min="1" max="90" style="padding: 8px 12px;">
+            </div>
+            <div>
+              <label style="font-size: 13px;">Số lần cảnh báo tối đa:</label>
+              <input type="number" id="maxViolations" value="3" min="1" max="10" style="padding: 8px 12px;">
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" style="margin-top: 10px; padding: 8px; font-size: 14px;" onclick="openTeacherAssistant()">Mở Trợ Lý Soạn Bài & Đề Thi (AI)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-box">
+      ⚠️ HỆ THỐNG GIÁM SÁT TỰ ĐỘNG: Thời gian làm bài được đếm ngược. Nếu học sinh thoát màn hình hoặc mở thẻ khác sẽ bị ghi nhận lỗi gian lận báo cáo về Giáo viên.
+    </div>
+
+    <!-- THÔNG TIN HỌC SINH -->
+    <div class="form-group">
+      <label>Họ và tên học sinh:</label>
+      <input type="text" id="stuName" placeholder="Nhập đầy đủ họ tên...">
+    </div>
+    <div class="form-group">
+      <label>Lớp / Số máy:</label>
+      <input type="text" id="stuClass" placeholder="Ví dụ: 12A1 - Máy 05">
+    </div>
+    <div style="margin-bottom: 16px; font-weight: 600; color: #475569; font-size: 14px;">
+      Thời gian làm bài được cài đặt: <span id="currentDurationDisplay" style="color:var(--primary); font-size:16px;">15</span> phút.
+    </div>
+
+    <button class="btn" onclick="startTest()">Bắt Đầu Làm Bài</button>
+  </div>
+
+  <!-- MÀN HÌNH LÀM BÀI (HIỆN ĐỒNG HỒ THỜI GIAN) -->
+  <div id="screen-exam" class="hidden">
+    <div class="exam-header-sticky">
+      <div>
+        <b id="examHeader" style="color:var(--primary); font-size:17px; display:block;"></b>
+        <span id="cheatWarning" style="color:var(--red); font-weight:bold; font-size:13px; display: none;"></span>
+      </div>
+      <div class="timer-badge" id="timerBadge">15:00</div>
+    </div>
+
+    <div id="examContainer"></div>
+    <button class="btn btn-green" id="btnSubmitExam" onclick="submitExam(false)">Nộp Bài Khảo Sát</button>
+  </div>
+
+  <!-- MÀN HÌNH KẾT QUẢ & LỜI GIẢI -->
+  <div id="screen-result" class="hidden">
+    <h2 style="color:var(--green); margin-top:0; text-align:center;">Đã Hoàn Thành Bài Khảo Sát!</h2>
+    <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+      <p style="margin: 0 0 10px 0; font-size: 16px;">Thí sinh: <b id="resName"></b> | Lớp: <span id="resClass"></span></p>
+      <p style="margin: 0; font-size: 20px;">Điểm số: <b id="resScore" style="color:var(--red); font-size: 32px;"></b></p>
+      <p id="resCheat" style="color:var(--red); font-weight:bold; font-size:15px; margin-top: 10px;"></p>
+    </div>
+    
+    <div id="syncStatus" style="font-weight:600; margin-bottom: 16px; color: var(--secondary); text-align: center;">Đang gửi bảng điểm về máy Giáo viên...</div>
+
+    <h3 style="border-top: 2px solid var(--border); padding-top: 16px; color: var(--primary);">Chi Tiết Đánh Giá & Hướng Dẫn Giải</h3>
+    <div id="reviewContainer"></div>
+    <button class="btn btn-secondary" onclick="location.reload()">Trở Về Màn Hình Ban Đầu</button>
+  </div>
+
+  <!-- MODAL TRỢ LÝ AI DÀNH RIÊNG CHO GIÁO VIÊN -->
+  <div id="modalTeacherAI" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px;">
+    <div style="background: #fff; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 16px;">
+        <h3 style="margin:0; color:var(--primary);">Trợ Lý Sư Phạm Hóa Học THPT (AI)</h3>
+        <button onclick="closeTeacherAssistant()" style="background:none; border:none; font-size:20px; cursor:pointer;">✖</button>
+      </div>
+      <div class="form-group">
+        <label>Gemini API Key (Tùy chọn):</label>
+        <input type="password" id="modalApiKey" placeholder="Dán API Key nếu muốn sinh trực tiếp...">
+      </div>
+      <div class="form-group">
+        <label>Nhiệm vụ:</label>
+        <select id="modalTask">
+          <option value="ga5p">1. Soạn Giáo án theo tiến trình 5P (Phát triển năng lực)</option>
+          <option value="dekt">2. Ra đề kiểm tra 3 phần (Trắc nghiệm, Đúng/Sai, Điền khuyết)</option>
+          <option value="exit">3. Phiếu kiểm tra nhanh 5 phút (Check-in/Exit ticket)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Chủ đề bài học:</label>
+        <input type="text" id="modalTopic" placeholder="Ví dụ: Este - Lipit, Amin, Thế điện cực...">
+      </div>
+      <button class="btn" onclick="executeModalAI()">Tạo Nội Dung</button>
+      <div id="modalOutput" style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:16px; margin-top:16px; min-height:150px; white-space:pre-wrap; font-size:14px;">Nội dung AI sẽ xuất hiện tại đây...</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // LIÊN KẾT NHẬN DỮ LIỆU CỦA GIÁO VIÊN
+  const FORMSPREE_URL = "https://formspree.io/f/mgaebavp";
+  const TEACHER_PIN = "1234"; // <--- Thầy có thể đổi mật khẩu giáo viên tại đây
+
+  let durationMinutes = 15;
+  let timerInterval = null;
+  let secondsLeft = 0;
+  let isExamActive = false;
+  let cheatCount = 0;
+
+  // ĐIỀU KHIỂN CẤU HÌNH GIÁO VIÊN
+  function toggleTeacherConfig() {
+    const box = document.getElementById('teacherConfigForm');
+    const icon = document.getElementById('teacherToggleIcon');
+    if (box.classList.contains('hidden')) {
+      box.classList.remove('hidden');
+      icon.innerText = "[Thu gọn]";
+    } else {
+      box.classList.add('hidden');
+      icon.innerText = "[Nhấn để mở]";
+    }
+  }
+
+  function unlockTeacherSettings() {
+    const pin = document.getElementById('teacherPin').value.trim();
+    if (pin === TEACHER_PIN) {
+      document.getElementById('teacherControls').classList.remove('hidden');
+      alert("Đã mở khóa quyền Giáo viên! Thầy có thể điều chỉnh thời gian làm bài.");
+    } else {
+      alert("Mật mã PIN không chính xác!");
+    }
+  }
+
+  document.getElementById('customMinutes').addEventListener('change', function() {
+    durationMinutes = parseInt(this.value, 10) || 15;
+    document.getElementById('currentDurationDisplay').innerText = durationMinutes;
+  });
+
+  function openTeacherAssistant() {
+    document.getElementById('modalTeacherAI').classList.remove('hidden');
+  }
+  function closeTeacherAssistant() {
+    document.getElementById('modalTeacherAI').classList.add('hidden');
+  }
+
+  // CẢNH BÁO CHỐNG GIAN LẬN
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && isExamActive) {
+      cheatCount++;
+      const cheatLabel = document.getElementById('cheatWarning');
+      cheatLabel.style.display = "block";
+      cheatLabel.innerText = `Cảnh báo vi phạm: ${cheatCount} lần`;
+      alert("⚠️ CẢNH BÁO: Em vừa rời khỏi màn hình làm bài! Hành động này đã được ghi nhận vào báo cáo gửi Giáo viên.");
+    }
+  });
+
+  // HÀM ĐẢO ĐỀ (FISHER-YATES)
+  function shuffle(arr) {
+    let a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ========================================================
+  // KHO ĐỀ GẤP 3 LẦN (THUẦN LÝ THUYẾT ESTER - LIPIT)
+  // ========================================================
+  const bank_fib = [
+    { id: 101, type: "fib", text: "Ester no, đơn chức, mạch hở có công thức chung là CnH2nO2 với điều kiện số nguyên tử C là n >= ___ (điền số).", correct: "2", explain: "Phân tử nhỏ nhất là HCOOCH3 (2 C), do đó n >= 2." },
+    { id: 102, type: "fib", text: "Phản ứng thủy phân ester trong môi trường kiềm (đun nóng) còn được gọi là phản ứng ___ hóa.", correct: "xà phòng", explain: "Thủy phân trong kiềm là phản ứng một chiều, gọi là phản ứng xà phòng hóa." },
+    { id: 103, type: "fib", text: "Thủy phân hoàn toàn 1 mol phenyl acetate (CH3COOC6H5) bằng dung dịch NaOH dư cần tối đa ___ mol NaOH (điền số).", correct: "2", explain: "Ester của phenol sinh ra natri phenolate tiếp tục phản ứng với NaOH, tổng cần 2 mol NaOH." },
+    { id: 104, type: "fib", text: "Đa số ester ở điều kiện thường nhẹ hơn ___ (điền tên chất) và rất ít tan trong dung môi này.", correct: "nước", explain: "Các ester thông thường có khối lượng riêng nhỏ hơn 1 g/cm3 và ít tan trong nước." },
+    { id: 105, type: "fib", text: "Phản ứng ester hóa giữa acid và alcohol xúc tác H2SO4 đặc là phản ứng ___ (thuận nghịch hay một chiều).", correct: "thuận nghịch", explain: "Phản ứng ester hóa là phản ứng thuận nghịch hai chiều." },
+    { id: 106, type: "fib", text: "Chất béo là triester của carboxylic acid mạch dài, không phân nhánh với ___ (điền tên alcohol).", correct: "glixerol", explain: "Chất béo (triglyceride) là triester của glycerol với các acid béo." },
+    { id: 107, type: "fib", text: "Ester isoamyl acetate có mùi thơm đặc trưng của quả ___ chín (điền tên quả).", correct: "chuối", explain: "Isoamyl acetate có mùi chuối chín." },
+    { id: 108, type: "fib", text: "Ester benzyl acetate có mùi thơm đặc trưng của hoa ___ (điền tên hoa).", correct: "nhài", explain: "Benzyl acetate mang mùi thơm hoa nhài." },
+    { id: 109, type: "fib", text: "Trong phân tử ester no, đơn chức, mạch hở chứa đúng ___ liên kết pi (điền số).", correct: "1", explain: "Chỉ có 1 liên kết pi nằm ở nhóm C=O của chức ester." },
+    { id: 110, type: "fib", text: "Thủy phân methyl formate thu được alcohol có tên là ___ (điền tên alcohol).", correct: "metanol", explain: "HCOOCH3 + H2O <-> HCOOH + CH3OH (methanol)." },
+    { id: 111, type: "fib", text: "Ester đơn chức có khả năng tham gia phản ứng tráng bạc phải chứa gốc acid mang tên ___ (điền tên gốc acid).", correct: "fomat", explain: "Gốc formate (HCOO-) giữ nhóm aldehyde (-CHO) nên tráng bạc được." },
+    { id: 112, type: "fib", text: "Chất béo chứa chủ yếu các gốc acid béo no ở trạng thái ___ ở điều kiện thường (rắn hay lỏng).", correct: "rắn", explain: "Chất béo no (như mỡ động vật) thường ở trạng thái rắn." }
+  ];
+
+  const bank_tf = [
+    {
+      id: 201, type: "tf", text: "Cho ester có công thức CH3COOCH=CH2 (vinyl acetate):",
+      items: [
+        { label: "a) Phân tử có phản ứng cộng làm mất màu nước bromine.", correct: "Đ" },
+        { label: "b) Thủy phân trong kiềm sinh ra muối và aldehyde axetic.", correct: "Đ" },
+        { label: "c) Thủy phân sinh ra ethyl alcohol.", correct: "S" },
+        { label: "d) Có khả năng trùng hợp tạo polymer.", correct: "Đ" }
+      ], explain: "Gốc vinyl gắn trực tiếp vào oxi tạo alcohol không bền chuyển thành aldehyde CH3CHO."
+    },
+    {
+      id: 202, type: "tf", text: "Xét thí nghiệm điều chế ethyl acetate:",
+      items: [
+        { label: "a) H2SO4 đặc vừa là chất xúc tác vừa có vai trò hút nước.", correct: "Đ" },
+        { label: "b) Thêm NaCl bão hòa để tăng khối lượng riêng lớp dưới, giúp ester tách lớp.", correct: "Đ" },
+        { label: "c) Lớp ester nhẹ hơn sẽ nổi lên trên.", correct: "Đ" },
+        { label: "d) Có thể thay H2SO4 đặc bằng HCl đặc với hiệu suất tương đương.", correct: "S" }
+      ], explain: "HCl dễ bay hơi và không háo nước mạnh như H2SO4 đặc."
+    },
+    {
+      id: 203, type: "tf", text: "Xét tính chất vật lý của ester:",
+      items: [
+        { label: "a) Nhiệt độ sôi của ester thấp hơn carboxylic acid có cùng số C.", correct: "Đ" },
+        { label: "b) Giữa các phân tử ester có liên kết hydrogen liên phân tử bền vững.", correct: "S" },
+        { label: "c) Đa số ester hòa tan tốt nhiều chất hữu cơ nên dùng làm dung môi.", correct: "Đ" },
+        { label: "d) Tất cả ester đều ở thể lỏng ở nhiệt độ thường.", correct: "S" }
+      ], explain: "Ester không tạo được liên kết hydrogen liên phân tử; chất béo rắn ở thể rắn."
+    },
+    {
+      id: 204, type: "tf", text: "Cấu tạo và phản ứng của ester:",
+      items: [
+        { label: "a) Phản ứng thủy phân trong môi trường acid là phản ứng thuận nghịch.", correct: "Đ" },
+        { label: "b) Mọi ester đơn chức khi thủy phân đều sinh ra đúng 1 alcohol.", correct: "S" },
+        { label: "c) Ester formate có khả năng tráng bạc.", correct: "Đ" },
+        { label: "d) Phản ứng xà phòng hóa luôn là phản ứng một chiều.", correct: "Đ" }
+      ], explain: "Ester của phenol sinh ra 2 muối, ester vinyl sinh ra aldehyde chứ không tạo alcohol."
+    }
+  ];
+
+  const bank_mcq = [
+    { id: 301, type: "mcq", text: "Hợp chất nào sau đây là ester no, đơn chức, mạch hở?", options: ["CH3COOCH3", "CH2=CHCOOCH3", "HCOOCH=CH2", "CH3COOH"], correct: "CH3COOCH3", explain: "CH3COOCH3 có CTPT C3H6O2 thỏa mãn CnH2nO2 (n >= 2)." },
+    { id: 302, type: "mcq", text: "Tên gọi của ester HCOOCH3 là:", options: ["Methyl formate", "Ethyl formate", "Methyl acetate", "Formic acid"], correct: "Methyl formate", explain: "Gốc methyl + formate = methyl formate." },
+    { id: 303, type: "mcq", text: "Ester nào sau đây có mùi chuối chín đặc trưng?", options: ["Isoamyl acetate", "Benzyl acetate", "Ethyl butyrate", "Geranyl acetate"], correct: "Isoamyl acetate", explain: "Isoamyl acetate có mùi chuối chín." },
+    { id: 304, type: "mcq", text: "Sản phẩm hữu cơ luôn luôn xuất hiện khi thủy phân ester trong dung dịch NaOH là:", options: ["Muối của carboxylic acid", "Alcohol", "Aldehyde", "Ketone"], correct: "Muối của carboxylic acid", explain: "Luôn thu được muối của acid carboxylic." },
+    { id: 305, type: "mcq", text: "Ester nào sau đây có khả năng tham gia phản ứng tráng bạc?", options: ["HCOOC2H5", "CH3COOC2H5", "C2H5COOCH3", "CH3COOCH3"], correct: "HCOOC2H5", explain: "Ester formate có nhóm -CHO nên tráng bạc được." },
+    { id: 306, type: "mcq", text: "Đun nóng ethyl propionate với dung dịch NaOH dư thu được muối nào sau đây?", options: ["C2H5COONa", "CH3COONa", "HCOONa", "C3H7COONa"], correct: "C2H5COONa", explain: "C2H5COOC2H5 + NaOH -> C2H5COONa + C2H5OH." },
+    { id: 307, type: "mcq", text: "Nhiệt độ sôi của ethyl acetate thấp hơn nhiều so với acetic acid cùng số C vì:", options: ["Ester không tạo được liên kết hydrogen liên phân tử", "Ester có khối lượng phân tử bé hơn", "Ester có tính phân cực mạnh hơn", "Ester tan kém trong nước"], correct: "Ester không tạo được liên kết hydrogen liên phân tử", explain: "Ester không có H linh động nên không tạo liên kết H liên phân tử." },
+    { id: 308, type: "mcq", text: "Thủy phân vinyl acetate trong dung dịch kiềm sinh ra sản phẩm gồm muối và:", options: ["Acetaldehyde", "Ethyl alcohol", "Vinyl alcohol", "Acetone"], correct: "Acetaldehyde", explain: "Alcohol sinh ra không bền chuyển thành aldehyde CH3CHO." },
+    { id: 309, type: "mcq", text: "Vai trò chính của dung dịch NaCl bão hòa trong thí nghiệm điều chế ester là:", options: ["Tăng khối lượng riêng giúp ester dễ tách lớp", "Xúc tác phản ứng hóa học", "Hút nước chuyển dịch cân bằng", "Trung hòa lượng acid dư"], correct: "Tăng khối lượng riêng giúp ester dễ tách lớp", explain: "NaCl bão hòa làm tăng tỉ trọng lớp chất lỏng bên dưới." },
+    { id: 310, type: "mcq", text: "Số liên kết pi (π) trong phân tử ester no, đơn chức, mạch hở là:", options: ["1", "0", "2", "3"], correct: "1", explain: "Chỉ có 1 liên kết pi tại nhóm C=O." }
+  ];
+
+  let studentExam = [];
+  let studentInfo = {};
+
+  // BẮT ĐẦU TÍNH GIỜ
+  function startTimer() {
+    secondsLeft = durationMinutes * 60;
+    const badge = document.getElementById('timerBadge');
+
+    timerInterval = setInterval(() => {
+      let m = Math.floor(secondsLeft / 60);
+      let s = secondsLeft % 60;
+      badge.innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+
+      if (secondsLeft <= 60) {
+        badge.style.background = "#b91c1c";
+      }
+
+      if (secondsLeft <= 0) {
+        clearInterval(timerInterval);
+        alert("Đã hết thời gian làm bài! Hệ thống tự động thu bài của em.");
+        submitExam(true);
+      }
+      secondsLeft--;
+    }, 1000);
+  }
+
+  function startTest() {
+    const name = document.getElementById('stuName').value.trim();
+    const sClass = document.getElementById('stuClass').value.trim();
+    if (!name || !sClass) { alert("Vui lòng điền họ tên và lớp/số máy!"); return; }
+
+    studentInfo = { name, sClass };
+    document.getElementById('examHeader').innerText = `Học sinh: ${name} (${sClass})`;
+
+    isExamActive = true;
+    cheatCount = 0;
+    document.getElementById('cheatWarning').style.display = "none";
+
+    const picked_fib = shuffle(bank_fib).slice(0, 4);
+    const picked_tf = shuffle(bank_tf).slice(0, 4);
+    const picked_mcq = shuffle(bank_mcq).slice(0, 10).map(q => {
+      let qCopy = {...q}; qCopy.options = shuffle(q.options); return qCopy;
+    });
+
+    studentExam = [
+      { partTitle: "PHẦN I: CÂU HỎI ĐIỀN KHUYẾT", list: picked_fib },
+      { partTitle: "PHẦN II: TRẮC NGHIỆM ĐÚNG/SAI", list: picked_tf },
+      { partTitle: "PHẦN III: TRẮC NGHIỆM 4 LỰA CHỌN", list: picked_mcq }
+    ];
+
+    const box = document.getElementById('examContainer');
+    box.innerHTML = "";
+    let questionCounter = 1;
+
+    studentExam.forEach(part => {
+      if (part.list.length === 0) return;
+      const pTitle = document.createElement('h3');
+      pTitle.className = "part-title";
+      pTitle.innerText = part.partTitle;
+      box.appendChild(pTitle);
+
+      part.list.forEach(q => {
+        const qDiv = document.createElement('div');
+        qDiv.className = "question-box";
+        let html = `<p><b>Câu ${questionCounter}:</b> ${q.text}</p>`;
+
+        if (q.type === 'fib') {
+          html += `<input type="text" id="ans_${q.id}" placeholder="Nhập câu trả lời...">`;
+        } else if (q.type === 'mcq') {
+          q.options.forEach(opt => {
+            html += `<label class="opt-label"><input type="radio" name="q_${q.id}" value="${opt}"> ${opt}</label>`;
+          });
+        } else if (q.type === 'tf') {
+          q.items.forEach((item, iIdx) => {
+            html += `
+              <div class="tf-item">
+                <span>${item.label}</span>
+                <div class="tf-options">
+                  <label><input type="radio" name="tf_${q.id}_${iIdx}" value="Đ"> Đúng</label>
+                  <label><input type="radio" name="tf_${q.id}_${iIdx}" value="S"> Sai</label>
+                </div>
+              </div>`;
+          });
+        }
+        qDiv.innerHTML = html;
+        box.appendChild(qDiv);
+        questionCounter++;
+      });
+    });
+
+    document.getElementById('screen-info').classList.add('hidden');
+    document.getElementById('screen-exam').classList.remove('hidden');
+
+    startTimer();
+  }
+
+  function submitExam(isAuto = false) {
+    if (!isAuto && !confirm("Em có chắc chắn nộp bài không?")) return;
+
+    clearInterval(timerInterval);
+    isExamActive = false;
+    document.getElementById('btnSubmitExam').disabled = true;
+
+    let totalQuestions = 0;
+    let correctCount = 0;
+    let reviewData = [];
+    let count = 1;
+    let wrongList = [];
+
+    studentExam.forEach(part => {
+      part.list.forEach(q => {
+        totalQuestions++;
+        if (q.type === 'fib') {
+          const inp = document.getElementById(`ans_${q.id}`);
+          const userAns = inp ? inp.value.trim() : "";
+          const isRight = (userAns.toLowerCase() === q.correct.toLowerCase());
+          if (isRight) correctCount++; else wrongList.push(`Câu ${count}`);
+          reviewData.push({ num: count, text: q.text, userAns: userAns || "(Trống)", correct: q.correct, isRight: isRight, explain: q.explain });
+        } else if (q.type === 'mcq') {
+          const sel = document.querySelector(`input[name="q_${q.id}"]:checked`);
+          const userAns = sel ? sel.value : "(Trống)";
+          const isRight = (userAns === q.correct);
+          if (isRight) correctCount++; else wrongList.push(`Câu ${count}`);
+          reviewData.push({ num: count, text: q.text, userAns: userAns, correct: q.correct, isRight: isRight, explain: q.explain });
+        } else if (q.type === 'tf') {
+          let tfRight = 0;
+          let details = [];
+          q.items.forEach((item, iIdx) => {
+            const sel = document.querySelector(`input[name="tf_${q.id}_${iIdx}"]:checked`);
+            const userVal = sel ? sel.value : "-";
+            if (userVal === item.correct) tfRight++;
+            details.push(`${item.label} (Chọn: ${userVal} - Đ/A: ${item.correct})`);
+          });
+          const isFull = (tfRight === q.items.length);
+          if (isFull) correctCount++; else wrongList.push(`Câu ${count}`);
+          reviewData.push({ num: count, text: q.text, userAns: details.join("<br>"), correct: "Tất cả ý đúng", isRight: isFull, explain: q.explain });
+        }
+        count++;
+      });
+    });
+
+    const score = ((correctCount / totalQuestions) * 10).toFixed(1);
+    const wrongSummary = wrongList.length > 0 ? wrongList.join(", ") : "Làm đúng toàn bộ";
+
+    document.getElementById('resName').innerText = studentInfo.name;
+    document.getElementById('resClass').innerText = studentInfo.sClass;
+    document.getElementById('resScore').innerText = `${score} / 10`;
+
+    const cheatLabel = document.getElementById('resCheat');
+    if (cheatCount > 0) {
+      cheatLabel.innerText = `Cảnh báo: Em đã rời khỏi màn hình ${cheatCount} lần.`;
+      cheatLabel.style.color = "var(--red)";
+    } else {
+      cheatLabel.innerText = `Làm bài nghiêm túc (Không vi phạm quy chế).`;
+      cheatLabel.style.color = "var(--green)";
+    }
+
+    const rBox = document.getElementById('reviewContainer');
+    rBox.innerHTML = "";
+    reviewData.forEach(r => {
+      const b = document.createElement('div');
+      b.className = "question-box";
+      b.innerHTML = `<span class="badge ${r.isRight ? 'badge-pass' : 'badge-fail'}">${r.isRight ? '✓ ĐÚNG' : '✗ SAI'}</span>
+        <p><b>Câu ${r.num}:</b> ${r.text}</p><p><b>Bài làm:</b><br>${r.userAns}</p>
+        ${!r.isRight ? `<p style="color:var(--green)"><b>Đáp án:</b> ${r.correct}</p>` : ''}
+        <div class="explanation"><b>Giải thích:</b> ${r.explain}</div>`;
+      rBox.appendChild(b);
+    });
+
+    document.getElementById('screen-exam').classList.add('hidden');
+    document.getElementById('screen-result').classList.remove('hidden');
+
+    const payload = {
+      ThoiGian: new Date().toLocaleString("vi-VN"),
+      HoTen: studentInfo.name,
+      Lop_SoMay: studentInfo.sClass,
+      ThoiLuongThi: `${durationMinutes} phút`,
+      DiemSo: score,
+      SoCauDung: `${correctCount}/${totalQuestions}`,
+      CacCauSai: wrongSummary,
+      ViPham: `${cheatCount} lần thoát màn hình`
+    };
+
+    fetch(FORMSPREE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(res => {
+      if (res.ok) {
+        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--green)">✓ Đã nộp bảng điểm và báo cáo về máy Giáo viên!</span>`;
+      } else {
+        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi kết nối mạng khi lưu bài.</span>`;
+      }
+    }).catch(err => {
+      document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi: ${err}</span>`;
+    });
+  }
+
+  // XỬ LÝ TRỢ LÝ AI SƯ PHẠM
+  async function executeModalAI() {
+    const key = document.getElementById('modalApiKey').value.trim();
+    const task = document.getElementById('modalTask').value;
+    const topic = document.getElementById('modalTopic').value.trim();
+    const out = document.getElementById('modalOutput');
+
+    if (!topic) { alert("Vui lòng nhập chủ đề bài học!"); return; }
+
+    let prompt = `Tôi là giáo viên Hóa học THPT với 20 năm kinh nghiệm giảng dạy. `;
+    if (task === 'ga5p') {
+      prompt += `Hãy soạn Kế hoạch bài dạy theo tiến trình 5P (Phát hiện - Khám phá - Phân tích - Phổ biến/Luyện tập - Phát triển) cho bài: "${topic}". Tập trung phát triển năng lực đặc thù Hóa học, không dùng toán số liệu phức tạp.`;
+    } else if (task === 'dekt') {
+      prompt += `Hãy xây dựng đề kiểm tra Hóa học THPT chủ đề "${topic}" gồm 3 phần: Trắc nghiệm 4 lựa chọn, Đúng/Sai 4 ý và Trả lời ngắn/Điền khuyết. Bám sát lý thuyết bản chất, kèm đáp án.`;
+    } else {
+      prompt += `Hãy thiết kế Phiếu kiểm tra nhanh 5 phút (Exit Ticket) bài "${topic}" gồm 4 câu hỏi nhận diện hiện tượng và vận dụng nhanh để kiểm tra mức độ nắm bài.`;
+    }
+
+    if (!key) {
+      out.innerText = "CHƯA CÓ API KEY. Thầy có thể sao chép câu lệnh chuẩn này dán vào Gemini:\n\n" + prompt;
+      return;
+    }
+
+    out.innerText = "Đang xử lý chuyên môn...";
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+      const data = await res.json();
+      if (data.candidates && data.candidates[0].content.parts[0].text) {
+        out.innerText = data.candidates[0].content.parts[0].text;
+      } else {
+        out.innerText = "Lỗi phản hồi: " + JSON.stringify(data);
+      }
+    } catch (e) {
+      out.innerText = "Lỗi kết nối: " + e.message;
+    }
+  }
+</script>
+</body>
+</html>
