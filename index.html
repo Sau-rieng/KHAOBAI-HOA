@@ -3,12 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hệ Thống Khảo Sát & Nghiệp Vụ Hóa Học THPT</title>
+  <title>Khảo Sát & Trợ Lý Hóa Học THPT</title>
   <style>
-    :root {
-      --primary: #1e3a8a; --secondary: #0284c7; --bg: #f8fafc; --card: #ffffff;
-      --border: #cbd5e1; --green: #16a34a; --red: #dc2626; --text: #0f172a;
-    }
+    :root { --primary: #1e3a8a; --secondary: #0284c7; --bg: #f8fafc; --card: #ffffff; --border: #cbd5e1; --green: #16a34a; --red: #dc2626; --text: #0f172a; }
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 16px; margin: 0; line-height: 1.5; }
     .container { max-width: 850px; margin: 0 auto; background: var(--card); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
@@ -34,33 +31,36 @@
     .badge-pass { background: #dcfce7; color: var(--green); }
     .badge-fail { background: #fee2e2; color: var(--red); }
     .alert-box { background: #fffbeb; border: 2px solid #f59e0b; color: #d97706; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-weight: bold; text-align: center; }
-    
     .teacher-box { background: #f0fdf4; border: 2px solid var(--green); border-radius: 10px; padding: 16px; margin-bottom: 20px; }
     .exam-header-sticky { position: sticky; top: 0; background: #fff; z-index: 99; border-bottom: 2px solid var(--border); padding: 12px 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
     .timer-badge { background: var(--red); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 18px; font-weight: bold; }
   </style>
 </head>
 <body>
-
 <div class="container">
 
-  <!-- MÀN HÌNH ĐĂNG NHẬP THI CỦA HỌC SINH -->
   <div id="screen-info">
     <h2 style="color:var(--primary); margin-top:0; text-align:center;">Khảo Sát Kiến Thức Hóa Học</h2>
     
-    <!-- KHUNG QUẢN TRỊ DÀNH RIÊNG CHO GIÁO VIÊN (Chỉ hiện khi thêm ?gv=1 vào cuối link web) -->
     <div id="teacherControlPanel" class="teacher-box hidden">
-      <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quyền Quản Trị Giáo Viên</h3>
+      <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quản Trị & Tạo Link Thi</h3>
       <div class="form-group">
-        <label>Đổi mã mở phòng thi (Bảo mật - Giáo viên đọc tại lớp):</label>
-        <input type="text" id="gvSecretInput" value="HOA12">
+        <label>1. Đặt thời gian làm bài (Phút):</label>
+        <input type="number" id="gvSetMinutes" value="15">
       </div>
-      <button type="button" class="btn btn-green" onclick="updateTeacherSecret()">Cập Nhật Mã Phòng Mới</button>
-      <button type="button" class="btn btn-secondary" onclick="toggleTeacherChatbox()">Mở Chatbox Soạn GA & Ra Đề (AI)</button>
+      <div class="form-group">
+        <label>2. Đặt mã mở phòng thi (Nên thêm _L1, _L2 để tránh trùng):</label>
+        <input type="text" id="gvSecretInput" placeholder="Ví dụ: 12G1_L1, 9D2_L2...">
+      </div>
+      <button type="button" class="btn btn-green" onclick="generateStudentLink()">Tạo Link Thi Mã Hóa Cho Học Sinh</button>
+      <div id="generatedLinkBox" style="margin-top:12px; font-weight:bold; color:var(--primary); word-break: break-all; display:none;"></div>
+      
+      <hr style="border: 1px solid #d1fae5; margin: 16px 0;">
+      <button type="button" class="btn btn-secondary" onclick="toggleTeacherChatbox()">Mở Chatbox Soạn Kế Hoạch & Ra Đề (AI)</button>
     </div>
 
     <div class="alert-box">
-      ⚠️ HỆ THỐNG GIÁM SÁT: Học sinh chỉ bắt đầu làm bài khi nhập đúng mã phòng thi do Giáo viên đọc trực tiếp tại lớp.
+      ⚠️ HỆ THỐNG GIÁM SÁT: Chỉ bấm được nút làm bài khi nhập đúng mã phòng thi do Giáo viên cấp trực tiếp tại lớp.
     </div>
 
     <div class="form-group">
@@ -69,20 +69,19 @@
     </div>
     <div class="form-group">
       <label>Lớp / Số máy:</label>
-      <input type="text" id="stuClass" placeholder="Ví dụ: 12A1 - Máy 05">
+      <input type="text" id="stuClass" placeholder="Ví dụ: 12G1 - Máy 05">
     </div>
     <div class="form-group">
       <label style="color: var(--red);">Mã mở phòng thi (Do GV đọc tại lớp):</label>
       <input type="text" id="roomPasscode" placeholder="Nhập mã mở phòng..." oninput="checkPasscode()">
     </div>
     <div style="margin-bottom: 16px; font-weight: 600; color: #475569; font-size: 14px;">
-      Thời gian làm bài: <span id="currentDurationDisplay" style="color:var(--primary); font-size:16px;">15 phút</span>
+      Thời lượng kiểm tra: <span id="currentDurationDisplay" style="color:var(--primary); font-size:16px;">-- phút</span>
     </div>
 
     <button class="btn" id="btnStartTest" onclick="startTest()" disabled>Vui Lòng Nhập Đúng Mã Phòng Để Làm Bài</button>
   </div>
 
-  <!-- MÀN HÌNH LÀM BÀI KHẢO SÁT -->
   <div id="screen-exam" class="hidden">
     <div class="exam-header-sticky">
       <div>
@@ -92,10 +91,9 @@
       <div class="timer-badge" id="timerBadge">00:00</div>
     </div>
     <div id="examContainer"></div>
-    <button class="btn btn-green" id="btnSubmitExam" onclick="submitExam(false)">Nộp Bài Khảo Sát</button>
+    <button class="btn btn-green" id="btnSubmitExam" onclick="submitExam(false)">Nộp Bài</button>
   </div>
 
-  <!-- MÀN HÌNH BÁO ĐIỂM & ĐÁP ÁN -->
   <div id="screen-result" class="hidden">
     <h2 style="color:var(--green); margin-top:0; text-align:center;">Đã Hoàn Thành Bài Khảo Sát!</h2>
     <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
@@ -104,9 +102,9 @@
       <p id="resCheat" style="color:var(--red); font-weight:bold; font-size:15px; margin-top: 10px;"></p>
     </div>
     <div id="syncStatus" style="font-weight:600; margin-bottom: 16px; color: var(--secondary); text-align: center;">Đang xử lý kết quả...</div>
-    <h3 style="border-top: 2px solid var(--border); padding-top: 16px; color: var(--primary);">Chi Tiết Bài Làm & Hướng Dẫn Giải</h3>
+    <h3 style="border-top: 2px solid var(--border); padding-top: 16px; color: var(--primary);">Chi Tiết Bài Làm</h3>
     <div id="reviewContainer"></div>
-    <button class="btn btn-secondary" onclick="location.reload()">Trở Về Màn Hình Ban Đầu</button>
+    <button class="btn btn-secondary" onclick="location.reload()">Trở Về Trang Chủ</button>
   </div>
 
   <!-- CỬA SỔ CHATBOX CHUYÊN MÔN SƯ PHẠM (DÀNH CHO GIÁO VIÊN) -->
@@ -121,34 +119,39 @@
         <input type="password" id="aiApiKey" placeholder="Dán mã API Key vào đây...">
       </div>
       <div class="form-group">
-        <label>Nhiệm vụ sư phạm cần thực hiện:</label>
+        <label>Nhiệm vụ chuyên môn:</label>
         <select id="aiTaskSelect">
-          <option value="ga5p">1. Soạn Kế hoạch bài dạy theo tiến trình 5P</option>
+          <option value="ga5p">1. Soạn Kế hoạch bài dạy (Tiến trình 5P)</option>
           <option value="de3part">2. Xây dựng Đề kiểm tra phân hóa cấu trúc mới 3 phần</option>
           <option value="exitTicket">3. Thiết kế Phiếu kiểm tra nhanh nắm bài tại lớp (Exit Ticket)</option>
         </select>
       </div>
       <div class="form-group">
         <label>Chủ đề bài học & Yêu cầu trọng tâm:</label>
-        <textarea id="aiTopicInput" placeholder="Ví dụ: Bài Cân bằng hóa học lớp 11, tập trung nguyên lý chuyển dịch..."></textarea>
+        <textarea id="aiTopicInput" placeholder="Ví dụ: Bài Cân bằng hóa học lớp 11, yêu cầu phân tích sự dịch chuyển..."></textarea>
       </div>
       <div style="display:flex; gap:10px;">
-        <button class="btn" onclick="executeAITask()" id="btnAIGenerate">Khởi Tạo Nội Dung Sư Phạm</button>
-        <button class="btn btn-green" onclick="exportWordDocument()" id="btnWordExport" style="display:none; width:auto;">Tải Xuống File Word (.doc)</button>
+        <button class="btn" onclick="executeAITask()" id="btnAIGenerate">Khởi Tạo Văn Bản</button>
+        <button class="btn btn-green" onclick="exportWordDocument()" id="btnWordExport" style="display:none; width:auto;">Tải File Word (.doc)</button>
       </div>
-      <div id="aiResultBox" style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:16px; margin-top:16px; min-height:160px; white-space:pre-wrap; line-height:1.6;">Nội dung chuyên môn sẽ xuất hiện tại đây...</div>
+      <div id="aiResultBox" style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:16px; margin-top:16px; min-height:160px; white-space:pre-wrap; line-height:1.6;">Nội dung sinh ra sẽ xuất hiện tại đây...</div>
     </div>
   </div>
-
 </div>
 
 <script>
-  // DÁN ĐƯỜNG LINK GOOGLE SHEETS HOẶC FORMSPREE CỦA THẦY VÀO TRONG DẤU NGOẶC KÉP BÊN DƯỚI NẾU CẦN THU ĐIỂM
+  // DÁN LINK GOOGLE SHEETS APP SCRIPT VÀO ĐÂY
   const SCRIPT_URL = "DÁN_WEB_APP_URL_CỦA_THẦY_VÀO_ĐÂY";
   
   const urlParams = new URLSearchParams(window.location.search);
   let durationMinutes = parseInt(urlParams.get('time'), 10) || 15;
-  let SECRET_PASSCODE = localStorage.getItem("chem_secret_pass") || "HOA12";
+  const encodedKeyFromUrl = urlParams.get('key'); 
+  let decodedTargetPasscode = "HOA12"; 
+  
+  if (encodedKeyFromUrl) {
+    try { decodedTargetPasscode = decodeURIComponent(atob(encodedKeyFromUrl)); } 
+    catch(e) { decodedTargetPasscode = "HOA12"; }
+  }
 
   let timerInterval = null;
   let secondsLeft = 0;
@@ -161,34 +164,44 @@
       document.getElementById('teacherControlPanel').classList.remove('hidden');
     }
     document.getElementById('currentDurationDisplay').innerText = durationMinutes + " phút";
-    document.getElementById('gvSecretInput').value = SECRET_PASSCODE;
-
+    
     const savedKey = localStorage.getItem("chem_gemini_key");
     if (savedKey) document.getElementById('aiApiKey').value = savedKey;
   });
 
-  function updateTeacherSecret() {
-    const val = document.getElementById('gvSecretInput').value.trim();
-    if (val) {
-      SECRET_PASSCODE = val;
-      localStorage.setItem("chem_secret_pass", val);
-      alert("Đã cập nhật mã phòng thi mới: " + val);
-    }
+  function generateStudentLink() {
+    const mins = parseInt(document.getElementById('gvSetMinutes').value, 10) || 15;
+    const pass = document.getElementById('gvSecretInput').value.trim();
+    if (!pass) { alert("Vui lòng nhập mã mở phòng thi!"); return; }
+    
+    const encodedPass = btoa(encodeURIComponent(pass.toUpperCase()));
+    
+    const baseUrl = window.location.origin + window.location.pathname;
+    const studentUrl = `${baseUrl}?time=${mins}&key=${encodedPass}`;
+    
+    const linkBox = document.getElementById('generatedLinkBox');
+    linkBox.style.display = "block";
+    linkBox.innerHTML = `
+      Copy link này gửi cho nhóm lớp:<br>
+      <a href="${studentUrl}" target="_blank" style="color:var(--green); font-size:14px; display:block; margin-top:6px;">${studentUrl}</a>
+    `;
+    alert(`Đã tạo link cấu hình thi ${mins} phút. Mã phòng: ${pass.toUpperCase()}`);
   }
 
-  function toggleTeacherChatbox() {
-    document.getElementById('modalTeacherAI').classList.toggle('hidden');
-  }
+  function toggleTeacherChatbox() { document.getElementById('modalTeacherAI').classList.toggle('hidden'); }
 
   function checkPasscode() {
-    const inputCode = document.getElementById('roomPasscode').value.trim();
+    const inputCode = document.getElementById('roomPasscode').value.trim().toUpperCase();
     const btn = document.getElementById('btnStartTest');
-    if (inputCode.toUpperCase() === SECRET_PASSCODE.toUpperCase()) {
+    
+    if (inputCode === decodedTargetPasscode.toUpperCase()) {
       btn.disabled = false;
       btn.innerText = "Bắt Đầu Làm Bài";
+      btn.style.background = "var(--green)";
     } else {
       btn.disabled = true;
       btn.innerText = "Vui Lòng Nhập Đúng Mã Phòng Để Làm Bài";
+      btn.style.background = "#94a3b8";
     }
   }
 
@@ -211,11 +224,11 @@
     return a;
   }
 
+  // KHO ĐỀ KHẢO BÀI (HÓA HỌC THPT)
   const bank_fib = [
     { id: 101, type: "fib", text: "Ester no, đơn chức, mạch hở có công thức chung là CnH2nO2 với điều kiện số nguyên tử C là n >= ___ (điền số).", correct: "2", explain: "Phân tử nhỏ nhất là HCOOCH3 (2 C), do đó n >= 2." },
     { id: 102, type: "fib", text: "Phản ứng thủy phân ester trong môi trường kiềm (đun nóng) còn được gọi là phản ứng ___ hóa.", correct: "xà phòng", explain: "Thủy phân trong kiềm là phản ứng một chiều, gọi là phản ứng xà phòng hóa." }
   ];
-
   const bank_tf = [
     {
       id: 201, type: "tf", text: "Cho ester có công thức CH3COOCH=CH2 (vinyl acetate):",
@@ -227,7 +240,6 @@
       ], explain: "Gốc vinyl gắn trực tiếp vào oxi tạo alcohol không bền chuyển thành aldehyde CH3CHO."
     }
   ];
-
   const bank_mcq = [
     { id: 301, type: "mcq", text: "Hợp chất nào sau đây là ester no, đơn chức, mạch hở?", options: ["CH3COOCH3", "CH2=CHCOOCH3", "HCOOCH=CH2", "CH3COOH"], correct: "CH3COOCH3", explain: "CH3COOCH3 có CTPT C3H6O2 thỏa mãn CnH2nO2 (n >= 2)." },
     { id: 302, type: "mcq", text: "Tên gọi của ester HCOOCH3 là:", options: ["Methyl formate", "Ethyl formate", "Methyl acetate", "Formic acid"], correct: "Methyl formate", explain: "Gốc methyl + formate = methyl formate." }
@@ -239,14 +251,11 @@
   function startTimer() {
     secondsLeft = durationMinutes * 60;
     const badge = document.getElementById('timerBadge');
-
     timerInterval = setInterval(() => {
       let m = Math.floor(secondsLeft / 60);
       let s = secondsLeft % 60;
       badge.innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
-
       if (secondsLeft <= 60) badge.style.background = "#b91c1c";
-
       if (secondsLeft <= 0) {
         clearInterval(timerInterval);
         alert("Đã hết thời gian làm bài! Hệ thống tự động thu bài của em.");
@@ -263,7 +272,6 @@
 
     studentInfo = { name, sClass };
     document.getElementById('examHeader').innerText = `Học sinh: ${name} (${sClass})`;
-
     isExamActive = true;
     cheatCount = 0;
     document.getElementById('cheatWarning').style.display = "none";
@@ -322,13 +330,11 @@
 
     document.getElementById('screen-info').classList.add('hidden');
     document.getElementById('screen-exam').classList.remove('hidden');
-
     startTimer();
   }
 
   function submitExam(isAuto = false) {
     if (!isAuto && !confirm("Em có chắc chắn nộp bài không?")) return;
-
     clearInterval(timerInterval);
     isExamActive = false;
     document.getElementById('btnSubmitExam').disabled = true;
@@ -407,27 +413,21 @@
         ThoiGian: new Date().toLocaleString("vi-VN"),
         HoTen: studentInfo.name,
         Lop_SoMay: studentInfo.sClass,
-        MaPhong: SECRET_PASSCODE,
+        MaPhong: decodedTargetPasscode, 
         DiemSo: score,
         SoCauDung: `${correctCount}/${totalQuestions}`,
         CacCauSai: wrongSummary,
         ViPham: `${cheatCount} lần thoát màn hình`
       };
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      }).then(() => {
-        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--green)">✓ Đã nộp bảng điểm thành công!</span>`;
-      }).catch(err => {
-        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi kết nối mạng: ${err}</span>`;
-      });
+      fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
+      .then(() => { document.getElementById('syncStatus').innerHTML = `<span style="color:var(--green)">✓ Đã nộp bảng điểm thành công!</span>`; })
+      .catch(err => { document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi kết nối: ${err}</span>`; });
     } else {
       document.getElementById('syncStatus').innerHTML = `<span style="color:var(--secondary)">Bài thi đã được lưu trên máy.</span>`;
     }
   }
 
-  // LOGIC CHATBOX SƯ PHẠM HÓA HỌC THPT (DÀNH CHO GIÁO VIÊN)
+  // LOGIC CHATBOX SƯ PHẠM HÓA HỌC THPT
   async function executeAITask() {
     const key = document.getElementById('aiApiKey').value.trim();
     const task = document.getElementById('aiTaskSelect').value;
@@ -444,7 +444,8 @@
     btnWord.style.display = "none";
     outBox.innerText = "Trợ lý Sư phạm đang khởi tạo văn bản theo chuẩn đánh giá năng lực...";
 
-    let prompt = "Tôi là giáo viên Hóa học THPT có nhiều năm kinh nghiệm giảng dạy. ";
+    // CHỈ THỊ CHUẨN SƯ PHẠM
+    let prompt = "Tôi là giáo viên Hóa học THPT. ";
     if (task === 'ga5p') {
       prompt += `Hãy soạn Kế hoạch bài dạy chi tiết theo tiến trình 5P cho bài: "${topic}". Yêu cầu làm rõ 3 năng lực đặc thù Hóa học (nhận thức, tìm hiểu thế giới tự nhiên, vận dụng), chuỗi hoạt động dạy - học rõ ràng, đính kèm phiếu học tập nhóm và bảng tiêu chí đánh giá (Rubric).`;
     } else if (task === 'de3part') {
@@ -455,8 +456,7 @@
 
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       });
       const data = await response.json();
@@ -481,23 +481,12 @@
       .replace(/\n\n/g, '</p><p>')
       .replace(/\n/g, '<br>');
 
-    const docContent = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-      <head><meta charset='utf-8'><title>TaiLieu_ChuyenMon_HoaHoc</title></head>
-      <body style="font-family: Arial; font-size: 13pt; line-height: 1.4;">
-        <h2 style="color: #1e3a8a; text-align: center;">TÀI LIỆU CHUYÊN MÔN HÓA HỌC THPT</h2>
-        <p>${formattedHtml}</p>
-      </body>
-      </html>
-    `;
+    const docContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>TaiLieu_ChuyenMon_HoaHoc</title></head><body style="font-family: Arial; font-size: 13pt; line-height: 1.4;"><h2 style="color: #1e3a8a; text-align: center;">TÀI LIỆU CHUYÊN MÔN HÓA HỌC</h2><p>${formattedHtml}</p></body></html>`;
     const blob = new Blob(['\ufeff', docContent], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'TaiLieu_ChuyenMon_HoaHoc.doc';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    a.href = url; a.download = 'TaiLieu_ChuyenMon_HoaHoc.doc';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
 </script>
 </body>
