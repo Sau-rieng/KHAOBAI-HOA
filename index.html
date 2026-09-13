@@ -42,7 +42,6 @@
   <div id="screen-info">
     <h2 style="color:var(--primary); margin-top:0; text-align:center;">Khảo Sát Kiến Thức Hóa Học</h2>
     
-    <!-- KHUNG QUẢN TRỊ DÀNH RIÊNG CHO GIÁO VIÊN (?gv=1) -->
     <div id="teacherControlPanel" class="teacher-box hidden">
       <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quản Trị & Tạo Link Thi</h3>
       <div class="form-group">
@@ -61,7 +60,7 @@
     </div>
 
     <div class="alert-box">
-      ⚠️ HỆ THỐNG GIÁM SÁT: Chỉ bấm được nút làm bài khi nhập đúng mã phòng thi do Giáo viên cấp trực tiếp tại lớp.
+      ⚠️ HỆ THỐNG GIÁM SÁT: Chỉ bấm được nút làm bài khi nhập đúng mã phòng thi do Giáo viên đọc trực tiếp tại lớp.
     </div>
 
     <div class="form-group">
@@ -105,7 +104,7 @@
     <div id="syncStatus" style="font-weight:600; margin-bottom: 16px; color: var(--secondary); text-align: center;">Đang xử lý kết quả...</div>
     <h3 style="border-top: 2px solid var(--border); padding-top: 16px; color: var(--primary);">Chi Tiết Bài Làm</h3>
     <div id="reviewContainer"></div>
-    <div style="text-align: center; color: var(--red); font-weight: bold; margin-top: 20px;">Học sinh vui lòng đóng trình duyệt sau khi kiểm tra xong kết quả.</div>
+    <div style="text-align: center; color: var(--red); font-weight: bold; margin-top: 20px;">Học sinh vui lòng đóng trình duyệt sau khi xem xong.</div>
   </div>
 
   <!-- CỬA SỔ CHATBOX CHUYÊN MÔN SƯ PHẠM -->
@@ -141,8 +140,8 @@
 </div>
 
 <script>
-  // DÁN LINK GOOGLE SHEETS CỦA THẦY VÀO ĐÂY
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw00zd-gLvDgltbzk9Ei928gaWajdPKw4cTIDm1sY-YP0uA_ybG6uHWX7Ps0G0GPwx4BQ/exec";
+  // DÁN LINK GOOGLE SHEETS APP SCRIPT MỚI CỦA THẦY VÀO ĐÂY
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzPUug4iNtB5FIEaFX0cZAt-Et9xE6jbVdkxna8L3OGdaDfEWKU07jx3toMxLS-hEpj2w/exec";
   
   const urlParams = new URLSearchParams(window.location.search);
   let durationMinutes = parseInt(urlParams.get('time'), 10) || 15;
@@ -222,36 +221,18 @@
     return a;
   }
 
-  // NGÂN HÀNG X3: THẦY THÊM CÂU HỎI VÀO ĐÂY ĐỂ ĐẠT 18 FIB, 12 TF, 30 MCQ
   const bank_fib = [
     { id: 101, type: "fib", text: "Ester no, đơn chức, mạch hở có công thức chung là CnH2nO2 với điều kiện số nguyên tử C là n >= ___ (điền số).", correct: "2", explain: "Phân tử nhỏ nhất là HCOOCH3 (2 C)." },
-    { id: 102, type: "fib", text: "Phản ứng thủy phân ester trong môi trường kiềm đun nóng gọi là phản ứng ___ hóa.", correct: "xà phòng", explain: "Thủy phân trong kiềm là phản ứng một chiều, xà phòng hóa." },
-    { id: 103, type: "fib", text: "Thủy phân hoàn toàn 1 mol phenyl acetate bằng NaOH dư cần tối đa ___ mol NaOH.", correct: "2", explain: "Ester phenol sinh ra muối phenolate tiếp tục phản ứng kiềm." },
-    { id: 104, type: "fib", text: "Đa số ester nhẹ hơn ___ và rất ít tan trong dung môi này.", correct: "nước", explain: "Ester không tạo được liên kết hydro với nước." },
-    { id: 105, type: "fib", text: "Phản ứng ester hóa là phản ứng ___ (thuận nghịch hay một chiều).", correct: "thuận nghịch", explain: "Cần xúc tác H2SO4 đặc và đun nóng, phản ứng 2 chiều." },
-    { id: 106, type: "fib", text: "Chất béo là triester của acid béo với alcohol có tên là ___.", correct: "glixerol", explain: "Glycerol / Glixerol." },
-    { id: 107, type: "fib", text: "Mùi chuối chín là của ester ___ acetate.", correct: "isoamyl", explain: "Isoamyl acetate có mùi chuối." },
-    { id: 108, type: "fib", text: "Trong phân tử ester no, đơn chức, mạch hở chứa đúng ___ liên kết pi.", correct: "1", explain: "1 liên kết pi ở nhóm chức -COO-." }
+    { id: 102, type: "fib", text: "Phản ứng thủy phân ester trong môi trường kiềm đun nóng gọi là phản ứng ___ hóa.", correct: "xà phòng", explain: "Thủy phân trong kiềm là phản ứng một chiều, xà phòng hóa." }
   ];
 
   const bank_tf = [
-    { id: 201, type: "tf", text: "Cho ester có công thức CH3COOCH=CH2:", items: [ { label: "a) Làm mất màu nước bromine.", correct: "Đ" }, { label: "b) Thủy phân trong kiềm sinh ra aldehyde.", correct: "Đ" }, { label: "c) Thủy phân sinh ra ethyl alcohol.", correct: "S" }, { label: "d) Có khả năng trùng hợp.", correct: "Đ" } ], explain: "Gốc vinyl không bền." },
-    { id: 202, type: "tf", text: "Xét thí nghiệm điều chế ethyl acetate:", items: [ { label: "a) H2SO4 đặc hút nước chuyển dịch cân bằng.", correct: "Đ" }, { label: "b) NaCl bão hòa giúp ester dễ tách lớp.", correct: "Đ" }, { label: "c) Lớp ester nặng hơn chìm xuống dưới.", correct: "S" }, { label: "d) Có thể thay H2SO4 đặc bằng HCl đặc.", correct: "S" } ], explain: "Ester nhẹ hơn nước nên nổi lên trên." },
-    { id: 203, type: "tf", text: "Tính chất vật lý của ester:", items: [ { label: "a) Nhiệt độ sôi thấp hơn acid cùng C.", correct: "Đ" }, { label: "b) Có liên kết hydrogen liên phân tử bền.", correct: "S" }, { label: "c) Hòa tan tốt nhiều chất hữu cơ.", correct: "Đ" }, { label: "d) Đều ở thể lỏng ở nhiệt độ thường.", correct: "S" } ], explain: "Mỡ động vật là chất béo thể rắn." },
-    { id: 204, type: "tf", text: "Phản ứng của ester:", items: [ { label: "a) Thủy phân trong acid là thuận nghịch.", correct: "Đ" }, { label: "b) Mọi ester thủy phân đều ra alcohol.", correct: "S" }, { label: "c) Ester formate tráng bạc được.", correct: "Đ" }, { label: "d) Xà phòng hóa là phản ứng một chiều.", correct: "Đ" } ], explain: "Ester của phenol sinh ra 2 muối." }
+    { id: 201, type: "tf", text: "Cho ester có công thức CH3COOCH=CH2:", items: [ { label: "a) Làm mất màu nước bromine.", correct: "Đ" }, { label: "b) Thủy phân trong kiềm sinh ra aldehyde.", correct: "Đ" }, { label: "c) Thủy phân sinh ra ethyl alcohol.", correct: "S" }, { label: "d) Có khả năng trùng hợp.", correct: "Đ" } ], explain: "Gốc vinyl không bền." }
   ];
 
   const bank_mcq = [
     { id: 301, type: "mcq", text: "Hợp chất nào là ester no, đơn chức, mạch hở?", options: ["CH3COOCH3", "CH2=CHCOOCH3", "HCOOCH=CH2", "CH3COOH"], correct: "CH3COOCH3", explain: "CnH2nO2." },
-    { id: 302, type: "mcq", text: "Tên của HCOOCH3 là:", options: ["Methyl formate", "Ethyl formate", "Methyl acetate", "Formic acid"], correct: "Methyl formate", explain: "Gốc methyl + formate." },
-    { id: 303, type: "mcq", text: "Ester nào có mùi chuối chín?", options: ["Isoamyl acetate", "Benzyl acetate", "Ethyl butyrate", "Geranyl acetate"], correct: "Isoamyl acetate", explain: "Đặc trưng mùi chuối." },
-    { id: 304, type: "mcq", text: "Sản phẩm luôn có khi thủy phân ester trong dung dịch NaOH là:", options: ["Muối", "Alcohol", "Aldehyde", "Ketone"], correct: "Muối", explain: "Thu được muối của carboxylic acid." },
-    { id: 305, type: "mcq", text: "Ester nào tráng bạc được?", options: ["HCOOC2H5", "CH3COOC2H5", "C2H5COOCH3", "CH3COOCH3"], correct: "HCOOC2H5", explain: "Phải có gốc HCOO-." },
-    { id: 306, type: "mcq", text: "Nhiệt độ sôi của ethyl acetate thấp hơn acetic acid cùng số C vì:", options: ["Không có liên kết hydrogen liên phân tử", "Khối lượng bé hơn", "Phân cực mạnh hơn", "Tan kém trong nước"], correct: "Không có liên kết hydrogen liên phân tử", explain: "Thiếu H linh động." },
-    { id: 307, type: "mcq", text: "Thủy phân vinyl acetate trong kiềm sinh ra muối và:", options: ["Acetaldehyde", "Ethyl alcohol", "Vinyl alcohol", "Acetone"], correct: "Acetaldehyde", explain: "Chuyển hóa thành CH3CHO." },
-    { id: 308, type: "mcq", text: "Vai trò NaCl bão hòa trong điều chế ester:", options: ["Tăng khối lượng riêng để tách lớp", "Xúc tác", "Hút nước", "Trung hòa acid"], correct: "Tăng khối lượng riêng để tách lớp", explain: "Giúp ester nổi rõ lên trên." },
-    { id: 309, type: "mcq", text: "Số liên kết pi trong ester no, đơn chức, mạch hở là:", options: ["1", "0", "2", "3"], correct: "1", explain: "1 liên kết pi ở C=O." },
-    { id: 310, type: "mcq", text: "Thủy phân phenyl acetate trong NaOH dư cho mấy muối?", options: ["2", "1", "3", "0"], correct: "2", explain: "CH3COONa và C6H5ONa." }
+    { id: 302, type: "mcq", text: "Tên của HCOOCH3 là:", options: ["Methyl formate", "Ethyl formate", "Methyl acetate", "Formic acid"], correct: "Methyl formate", explain: "Gốc methyl + formate." }
   ];
 
   let studentExam = [];
@@ -352,7 +333,6 @@
     let totalQuestions = 0;
     let correctCount = 0;
     let reviewData = [];
-    let wrongList = [];
 
     studentExam.forEach(part => {
       let count = 1;
@@ -362,13 +342,13 @@
           const inp = document.getElementById(`ans_${q.id}`);
           const userAns = inp ? inp.value.trim() : "";
           const isRight = (userAns.toLowerCase() === q.correct.toLowerCase());
-          if (isRight) correctCount++; else wrongList.push(`P${part.partIndex}-C${count}`);
+          if (isRight) correctCount++;
           reviewData.push({ pIdx: part.partIndex, num: count, text: q.text, userAns: userAns || "(Trống)", correct: q.correct, isRight: isRight, explain: q.explain });
         } else if (q.type === 'mcq') {
           const sel = document.querySelector(`input[name="q_${q.id}"]:checked`);
           const userAns = sel ? sel.value : "(Trống)";
           const isRight = (userAns === q.correct);
-          if (isRight) correctCount++; else wrongList.push(`P${part.partIndex}-C${count}`);
+          if (isRight) correctCount++;
           reviewData.push({ pIdx: part.partIndex, num: count, text: q.text, userAns: userAns, correct: q.correct, isRight: isRight, explain: q.explain });
         } else if (q.type === 'tf') {
           let tfRight = 0;
@@ -380,7 +360,7 @@
             details.push(`${item.label} (Chọn: ${userVal} - Đ/A: ${item.correct})`);
           });
           const isFull = (tfRight === q.items.length);
-          if (isFull) correctCount++; else wrongList.push(`P${part.partIndex}-C${count}`);
+          if (isFull) correctCount++;
           reviewData.push({ pIdx: part.partIndex, num: count, text: q.text, userAns: details.join("<br>"), correct: "Tất cả ý đúng", isRight: isFull, explain: q.explain });
         }
         count++;
@@ -388,7 +368,6 @@
     });
 
     const score = ((correctCount / totalQuestions) * 10).toFixed(1);
-    const wrongSummary = wrongList.length > 0 ? wrongList.join(", ") : "Làm đúng toàn bộ";
 
     document.getElementById('resName').innerText = studentInfo.name;
     document.getElementById('resClass').innerText = studentInfo.sClass;
@@ -405,6 +384,14 @@
 
     const rBox = document.getElementById('reviewContainer');
     rBox.innerHTML = "";
+    
+    // TẠO FILE VĂN BẢN GỬI VỀ GOOGLE DOCS
+    let detailText = `BÀI KHẢO SÁT KIẾN THỨC HÓA HỌC\n`;
+    detailText += `Họ tên: ${studentInfo.name} | Lớp: ${studentInfo.sClass}\n`;
+    detailText += `Điểm số: ${score}/10 | Số câu đúng: ${correctCount}/${totalQuestions}\n`;
+    detailText += `Mã phòng thi: ${decodedTargetPasscode}\n`;
+    detailText += `--------------------------------------------------\n\n`;
+
     reviewData.forEach(r => {
       const b = document.createElement('div');
       b.className = "question-box";
@@ -413,6 +400,12 @@
         ${!r.isRight ? `<p style="color:var(--green)"><b>Đáp án:</b> ${r.correct}</p>` : ''}
         <div class="explanation"><b>Giải thích:</b> ${r.explain}</div>`;
       rBox.appendChild(b);
+
+      detailText += `Phần ${r.pIdx} - Câu ${r.num}: ${r.text}\n`;
+      detailText += `> Học sinh chọn: ${r.userAns.replace(/<br>/g, ', ')}\n`;
+      detailText += `> Kết quả: ${r.isRight ? 'ĐÚNG' : 'SAI'}\n`;
+      if (!r.isRight) detailText += `> Đáp án đúng: ${r.correct}\n`;
+      detailText += `> Giải thích: ${r.explain}\n\n`;
     });
 
     document.getElementById('screen-exam').classList.add('hidden');
@@ -426,14 +419,14 @@
         MaPhong: decodedTargetPasscode, 
         DiemSo: score,
         SoCauDung: `${correctCount}/${totalQuestions}`,
-        CacCauSai: wrongSummary,
+        ChiTietBaiLam: detailText,
         ViPham: `${cheatCount} lần thoát màn hình`
       };
       fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
-      .then(() => { document.getElementById('syncStatus').innerHTML = `<span style="color:var(--green)">✓ Đã nộp điểm về Google Sheets!</span>`; })
+      .then(() => { document.getElementById('syncStatus').innerHTML = `<span style="color:var(--green)">✓ Đã nộp file bài làm chi tiết về Google Drive!</span>`; })
       .catch(err => { document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi nộp điểm: ${err}</span>`; });
     } else {
-      document.getElementById('syncStatus').innerHTML = `<span style="color:var(--secondary)">Bài thi đã được lưu tạm trên máy. Vui lòng thiết lập Google Sheets.</span>`;
+      document.getElementById('syncStatus').innerHTML = `<span style="color:var(--secondary)">Vui lòng cập nhật Web App URL để lưu bài tự động.</span>`;
     }
   }
 
