@@ -44,9 +44,9 @@
     <h2 style="color:var(--primary); margin-top:0; text-align:center; font-size: 26px;">Khảo Sát Kiến Thức Hóa Học</h2>
     
     <div id="teacherControlPanel" class="teacher-box hidden">
-      <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quản Trị Tạo Link</h3>
+      <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quản Trị Tạo Link (Lớp 12G2)</h3>
       <div class="form-group"><label>Thời gian (Phút):</label><input type="number" id="gvSetMinutes" value="15"></div>
-      <div class="form-group"><label>Mã bảo mật phòng thi:</label><input type="text" id="gvSecretInput" placeholder="Ví dụ: 12G1_KT"></div>
+      <div class="form-group"><label>Mã bảo mật phòng thi:</label><input type="text" id="gvSecretInput" placeholder="Ví dụ: 12G2_KT"></div>
       <button type="button" class="btn btn-green" onclick="generateStudentLink()">Tạo Link Thi Mã Hóa</button>
       <div id="generatedLinkBox" style="margin-top:16px; font-weight:bold; color:var(--primary); word-break: break-all; display:none; background: #e0f2fe; padding: 12px; border-radius: 8px;"></div>
     </div>
@@ -54,7 +54,7 @@
     <div class="alert-box">⚠️ Chỉ được làm bài khi nhập đúng mã bảo mật từ Giáo viên.</div>
 
     <div class="form-group"><label>Họ và tên học sinh:</label><input type="text" id="stuName" placeholder="Nhập đầy đủ họ tên..."></div>
-    <div class="form-group"><label>Lớp / Số thiết bị:</label><input type="text" id="stuClass" placeholder="Ví dụ: 12G1 - Tablet 05"></div>
+    <div class="form-group"><label>Lớp / Số thiết bị:</label><input type="text" id="stuClass" placeholder="Ví dụ: 12G2 - Tablet 05"></div>
     <div class="form-group"><label style="color: var(--red);">Mã mở phòng thi:</label><input type="text" id="roomPasscode" placeholder="Nhập mã do GV cung cấp..." oninput="checkPasscode()" style="border-color: var(--red);"></div>
     <div style="margin-bottom: 24px; font-weight: 600; color: #475569; font-size: 16px; text-align: center;">Thời lượng: <span id="currentDurationDisplay" style="color:var(--primary); font-size:18px;">-- phút</span></div>
 
@@ -84,8 +84,8 @@
 </div>
 
 <script>
-  // DÁN LINK APPS SCRIPT VÀO ĐÂY
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyt4pxiBKQ6F2clBP3uFaifcbgspwnJNr2DpzmzfcU98rUTWqN1QLBmIdme5bkAnrZB/exec";
+  // DÁN LINK APPS SCRIPT CỦA THẦY VÀO ĐÂY
+  const SCRIPT_URL = "DÁN_WEB_APP_URL_CỦA_THẦY_VÀO_ĐÂY";
   
   const urlParams = new URLSearchParams(window.location.search);
   let durationMinutes = parseInt(urlParams.get('time'), 10) || 15;
@@ -137,8 +137,7 @@
     return a;
   }
 
-  // ==========================================
-  // const bank_fib = [
+  const bank_fib = [
     { id: 1, type: "fib", text: "Amine bậc 2 có chứa nhóm chức là ___", correct: "NH", explain: "Nitơ liên kết với 2 gốc hydrocarbon." },
     { id: 2, type: "fib", text: "Dung dịch dimethylamine làm quỳ tím ẩm chuyển thành màu ___", correct: "xanh", explain: "Có tính base mạnh." },
     { id: 3, type: "fib", text: "Tên thông thường của C6H5NH2 là ___", correct: "aniline", explain: "Chất lỏng, ít tan trong nước." },
@@ -168,7 +167,7 @@
     { id: 24, type: "tf", text: "Phản ứng của Aniline (C6H5NH2):", items: [ { label: "a) Tác dụng với NaOH tạo C6H5ONa.", correct: "S" }, { label: "b) Tác dụng với HCl tạo C6H5NH3Cl.", correct: "Đ" }, { label: "c) Tác dụng với nước Bromine tạo kết tủa trắng.", correct: "Đ" }, { label: "d) Nhỏ vài giọt Aniline vào nước thấy Aniline chìm xuống.", correct: "Đ" } ], explain: "Aniline là base không tác dụng NaOH, nặng hơn nước nên chìm." },
     { id: 25, type: "tf", text: "Vai trò và ứng dụng:", items: [ { label: "a) Protein là nền tảng cấu trúc của tế bào động vật.", correct: "Đ" }, { label: "b) Amino acid được dùng làm nguyên liệu sản xuất tơ nilon.", correct: "Đ" }, { label: "c) Ethylamine được dùng làm bột ngọt.", correct: "S" }, { label: "d) Acid glutamic làm thuốc bổ thần kinh.", correct: "Đ" } ], explain: "Glutamic acid làm bột ngọt, không phải ethylamine." },
     { id: 26, type: "tf", text: "Nhận biết các hợp chất hữu cơ:", items: [ { label: "a) Dùng quỳ tím phân biệt được Valine và Lysine.", correct: "Đ" }, { label: "b) Dùng Cu(OH)2 phân biệt được lòng trắng trứng và hồ tinh bột.", correct: "Đ" }, { label: "c) Dùng nước Bromine phân biệt được Aniline và Glycine.", correct: "Đ" }, { label: "d) Dùng HCl phân biệt được methylamine và ethylamine.", correct: "S" } ], explain: "Methylamine và ethylamine đều phản ứng HCl tạo muối tan, không phân biệt được." },
-    { id: 27, type: "tf", text: "Cấu tạo hóa học:", items: [ { label: "a) Amine bậc 2 có nhóm -NH-.", correct: "Đ" }, { label: "b) Liên kết peptide là -CO-NH-.", correct: "Đ" }, { label: "c) Polypeptide chứa 2 đến 10 gốc alpha-amino acid.", correct: "S" }, { label: "d) Tripeptide mạch hở có 2 nhóm -COOH tự do.", correct: "S" } ], explain: "Polypeptide chứa 11-50 gốc. Tripeptide mạch hở chỉ có 1 nhóm COOH ở đầu C (trừ gốc acid đa chức)." },
+    { id: 27, type: "tf", text: "Cấu tạo hóa học:", items: [ { label: "a) Amine bậc 2 có nhóm -NH-.", correct: "Đ" }, { label: "b) Liên kết peptide là -CO-NH-.", correct: "Đ" }, { label: "c) Polypeptide chứa 2 đến 10 gốc alpha-amino acid.", correct: "S" }, { label: "d) Tripeptide mạch hở có 2 nhóm -COOH tự do.", correct: "S" } ], explain: "Polypeptide chứa 11-50 gốc. Tripeptide mạch hở chỉ có 1 nhóm COOH ở đầu C." },
     { id: 28, type: "tf", text: "So sánh tính chất vật lý:", items: [ { label: "a) Aniline tan trong nước kém hơn NH3.", correct: "Đ" }, { label: "b) Valine dễ bay hơi ở nhiệt độ thường.", correct: "S" }, { label: "c) Amino acid dễ nóng chảy hơn Amine.", correct: "S" }, { label: "d) Dung dịch protein bị đông tụ khi cho thêm acid.", correct: "Đ" } ], explain: "Amino acid khó bay hơi, khó nóng chảy." },
     { id: 29, type: "tf", text: "Thủy phân Peptide/Protein:", items: [ { label: "a) Thủy phân hoàn toàn protein sinh ra hỗn hợp alpha-amino acid.", correct: "Đ" }, { label: "b) Xúc tác thủy phân có thể là acid hoặc base.", correct: "Đ" }, { label: "c) Phản ứng thủy phân peptide là phản ứng oxi hóa khử.", correct: "S" }, { label: "d) Enzyme cũng có khả năng xúc tác thủy phân protein.", correct: "Đ" } ], explain: "Thủy phân không làm thay đổi số oxi hóa." },
     { id: 30, type: "tf", text: "Đặc điểm của Enzyme:", items: [ { label: "a) Có tính xúc tác đặc hiệu cao.", correct: "Đ" }, { label: "b) Có bản chất là Carbohydrate.", correct: "S" }, { label: "c) Xúc tác enzyme diễn ra ở điều kiện nhiệt độ cao (trên 100 độ C).", correct: "S" }, { label: "d) Tốc độ phản ứng do enzyme xúc tác rất lớn.", correct: "Đ" } ], explain: "Bản chất là protein, ở nhiệt độ cao enzyme bị biến tính." }
@@ -204,23 +203,8 @@
     { id: 57, type: "mcq", text: "Amine bậc 3 có công thức tổng quát dạng:", options: ["R3N", "R-NH2", "R2NH", "R4N+"], correct: "R3N", explain: "Nitơ liên kết 3 gốc alkyl." },
     { id: 58, type: "mcq", text: "Amino acid nào sau đây có mạch carbon phân nhánh?", options: ["Valine", "Glycine", "Alanine", "Lysine"], correct: "Valine", explain: "Gốc isopropyl phân nhánh." },
     { id: 59, type: "mcq", text: "Đun nóng protein trong dung dịch NaOH đun nóng xảy ra hiện tượng:", options: ["Thủy phân", "Trùng hợp", "Phản ứng màu biuret", "Bay hơi"], correct: "Thủy phân", explain: "Cắt đứt chuỗi polypeptide." },
-    { id: 60, type: "mcq", text: "Dung dịch X làm quỳ tím hóa xanh, phản ứng với HNO dư tạo khí không màu. X là:", options: ["CH3NH2", "C6H5NH2", "NH3", "Glycine"], correct: "CH3NH2", explain: "Amine bậc 1 mạch hở tạo khí N2 với HNO2 (chương trình SGK mở rộng)." }
+    { id: 60, type: "mcq", text: "Dung dịch X làm quỳ tím hóa xanh, phản ứng với HNO dư tạo khí không màu. X là:", options: ["CH3NH2", "C6H5NH2", "NH3", "Glycine"], correct: "CH3NH2", explain: "Amine bậc 1 mạch hở tạo khí N2 với HNO2." }
   ];
-  // ==========================================
-
-  const bank_fib = [
-    { id: 1, type: "fib", text: "Câu điền khuyết mẫu", correct: "Đáp án", explain: "Giải thích" }
-  ];
-
-  const bank_tf = [
-    { id: 11, type: "tf", text: "Câu Đúng/Sai mẫu:", items: [ { label: "Ý a", correct: "Đ" }, { label: "Ý b", correct: "S" }, { label: "Ý c", correct: "Đ" }, { label: "Ý d", correct: "S" } ], explain: "Giải thích" }
-  ];
-
-  const bank_mcq = [
-    { id: 21, type: "mcq", text: "Câu trắc nghiệm mẫu", options: ["A", "B", "C", "D"], correct: "A", explain: "Giải thích" }
-  ];
-
-  // ==========================================
 
   let studentExam = [];
   let studentInfo = {};
@@ -246,7 +230,6 @@
     document.getElementById('examHeader').innerText = `Học sinh: ${name} (${sClass})`;
     isExamActive = true; cheatCount = 0; document.getElementById('cheatWarning').style.display = "none";
 
-    // Mặc định bốc ngẫu nhiên 6 câu ĐK, 4 câu Đ/S, 10 câu Trắc nghiệm
     const picked_fib = shuffle(bank_fib).slice(0, 6);
     const picked_tf = shuffle(bank_tf).slice(0, 4);
     const picked_mcq = shuffle(bank_mcq).slice(0, 10).map(q => { let qCopy = {...q}; qCopy.options = shuffle(q.options); return qCopy; });
