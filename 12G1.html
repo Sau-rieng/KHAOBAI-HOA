@@ -138,7 +138,74 @@
   }
 
   // ==========================================
-  // THẦY ĐIỀN BỘ CÂU HỎI CỦA LỚP VÀO ĐÂY
+  // const bank_fib = [
+    { id: 1, type: "fib", text: "Amine bậc 1 có chứa nhóm chức là ___", correct: "NH2", explain: "Đặc điểm của amine bậc 1." },
+    { id: 2, type: "fib", text: "Tên thay thế của CH3NH2 là ___", correct: "methanamine", explain: "Tên hydrocarbon + amine." },
+    { id: 3, type: "fib", text: "Dung dịch methylamine làm quỳ tím chuyển sang màu ___", correct: "xanh", explain: "Methylamine có tính base." },
+    { id: 4, type: "fib", text: "Amino acid là hợp chất hữu cơ tạp chức chứa nhóm amino và nhóm ___", correct: "carboxyl", explain: "Định nghĩa amino acid." },
+    { id: 5, type: "fib", text: "Công thức của Glycine là H2N-CH2-___", correct: "COOH", explain: "Glycine là amino acid đơn giản nhất." },
+    { id: 6, type: "fib", text: "Dung dịch Glycine làm quỳ tím chuyển màu ___", correct: "không", explain: "Glycine có 1 nhóm -NH2 và 1 nhóm -COOH." },
+    { id: 7, type: "fib", text: "Liên kết -CO-NH- giữa hai đơn vị alpha-amino acid gọi là liên kết ___", correct: "peptide", explain: "Định nghĩa liên kết peptide." },
+    { id: 8, type: "fib", text: "Phân tử tripeptide có chứa ___ liên kết peptide.", correct: "2", explain: "Số liên kết = Số gốc - 1." },
+    { id: 9, type: "fib", text: "Phản ứng màu biuret là phản ứng của peptide với Cu(OH)2 trong môi trường ___", correct: "kiềm", explain: "Điều kiện phản ứng màu biuret." },
+    { id: 10, type: "fib", text: "Hiện tượng protein bị đông đặc lại khi đun nóng gọi là sự ___ protein.", correct: "đông tụ", explain: "Tính chất vật lý của protein." },
+    { id: 11, type: "fib", text: "Aniline phản ứng với nước bromine sinh ra kết tủa màu ___", correct: "trắng", explain: "Phản ứng thế vào vòng benzene." },
+    { id: 12, type: "fib", text: "Dung dịch chứa amino acid Glutamic acid làm quỳ tím hóa ___", correct: "đỏ", explain: "Có 2 nhóm -COOH và 1 nhóm -NH2." },
+    { id: 13, type: "fib", text: "Peptide được tạo thành từ 2 đến 10 gốc alpha-amino acid gọi là ___", correct: "oligopeptide", explain: "Phân loại peptide theo SGK." },
+    { id: 14, type: "fib", text: "Khi thủy phân hoàn toàn protein đơn giản thu được các ___", correct: "alpha-amino acid", explain: "Thành phần cấu tạo của protein." },
+    { id: 15, type: "fib", text: "Khối lượng phân tử của Alanine là ___", correct: "89", explain: "M của CH3-CH(NH2)-COOH." },
+    { id: 16, type: "fib", text: "Amino acid tồn tại chủ yếu ở dạng ion ___", correct: "lưỡng cực", explain: "Do tương tác giữa nhóm acid và base trong cùng phân tử." },
+    { id: 17, type: "fib", text: "Chất khí có mùi khai sinh ra khi cho muối phenylammonium chloride tác dụng với dung dịch NaOH là ___", correct: "aniline", explain: "Aniline được đẩy ra khỏi muối, tuy là chất lỏng nhưng dễ bay hơi có mùi." },
+    { id: 18, type: "fib", text: "Để rửa sạch ống nghiệm dính aniline, người ta tráng ống nghiệm bằng dung dịch ___", correct: "hcl", explain: "HCl phản ứng tạo muối tan." }
+  ];
+
+  const bank_tf = [
+    { id: 19, type: "tf", text: "Cho các phát biểu về Aniline (C6H5NH2):", items: [ { label: "a) Là chất khí ở điều kiện thường.", correct: "S" }, { label: "b) Tan rất ít trong nước lạnh.", correct: "Đ" }, { label: "c) Có tính base yếu hơn amonia.", correct: "Đ" }, { label: "d) Làm xanh giấy quỳ tím ẩm.", correct: "S" } ], explain: "Aniline lỏng, tính base rất yếu không đổi màu quỳ." },
+    { id: 20, type: "tf", text: "Về tính chất của Amino acid:", items: [ { label: "a) Là chất lỏng ở điều kiện thường.", correct: "S" }, { label: "b) Dễ tan trong nước.", correct: "Đ" }, { label: "c) Vừa tác dụng với acid, vừa tác dụng với base.", correct: "Đ" }, { label: "d) Có nhiệt độ nóng chảy thấp.", correct: "S" } ], explain: "Amino acid là hợp chất ion nên là chất rắn kết tinh, nóng chảy cao." },
+    { id: 21, type: "tf", text: "Nhận định về Peptide và Protein:", items: [ { label: "a) Dipeptide có phản ứng màu biuret.", correct: "S" }, { label: "b) Protein phức tạp có chứa thêm thành phần phi protein.", correct: "Đ" }, { label: "c) Khi vắt chanh vào sữa bò thấy có kết tủa là do sự đông tụ protein.", correct: "Đ" }, { label: "d) Mọi protein đều tan tốt trong nước nóng.", correct: "S" } ], explain: "Dipeptide không có phản ứng biuret. Protein sừng/tóc không tan." },
+    { id: 22, type: "tf", text: "So sánh tính base của các Amine:", items: [ { label: "a) CH3NH2 mạnh hơn NH3.", correct: "Đ" }, { label: "b) C6H5NH2 mạnh hơn NH3.", correct: "S" }, { label: "c) (CH3)2NH mạnh hơn CH3NH2.", correct: "Đ" }, { label: "d) C6H5NH2 phản ứng được với NaOH.", correct: "S" } ], explain: "Gốc alkyl làm tăng tính base, gốc phenyl làm giảm tính base." },
+    { id: 23, type: "tf", text: "Cho các phát biểu về Glycine (H2N-CH2-COOH):", items: [ { label: "a) Tham gia phản ứng trùng ngưng.", correct: "Đ" }, { label: "b) Tác dụng với ethanol (xúc tác khí HCl) sinh ra ester.", correct: "Đ" }, { label: "c) Phân tử có 2 nguyên tử Oxygen.", correct: "Đ" }, { label: "d) Là thành phần chính của bột ngọt (mì chính).", correct: "S" } ], explain: "Mì chính là muối của Glutamic acid, không phải Glycine." },
+    { id: 24, type: "tf", text: "Phản ứng của hợp chất chứa Nitrogen:", items: [ { label: "a) Ethylamine tác dụng với HCl tạo muối ethylammonium chloride.", correct: "Đ" }, { label: "b) Alanine không phản ứng với NaOH.", correct: "S" }, { label: "c) Thủy phân hoàn toàn protein trong acid thu được các beta-amino acid.", correct: "S" }, { label: "d) Phản ứng màu biuret tạo dung dịch màu tím.", correct: "Đ" } ], explain: "Protein thủy phân sinh ra alpha-amino acid." },
+    { id: 25, type: "tf", text: "Ứng dụng của các chất:", items: [ { label: "a) Aniline được dùng để sản xuất phẩm nhuộm.", correct: "Đ" }, { label: "b) Các amino acid thiên nhiên là cơ sở kiến tạo protein của cơ thể sống.", correct: "Đ" }, { label: "c) Muối diammonium glutamate làm thuốc hỗ trợ thần kinh.", correct: "S" }, { label: "d) Enzyme có bản chất là protein.", correct: "Đ" } ], explain: "Muối monosodium (chứ không phải diammonium) dùng làm bột ngọt." },
+    { id: 26, type: "tf", text: "Về danh pháp và cấu tạo:", items: [ { label: "a) Tên bán hệ thống của H2N-CH(CH3)-COOH là Alanine.", correct: "Đ" }, { label: "b) Phân tử Valine có 5 nguyên tử Carbon.", correct: "Đ" }, { label: "c) Amine C2H7N có 3 đồng phân cấu tạo.", correct: "S" }, { label: "d) Đầu N của một chuỗi polypeptide là nhóm -NH2 tự do.", correct: "Đ" } ], explain: "C2H7N chỉ có 2 đồng phân: ethylamine và dimethylamine." },
+    { id: 27, type: "tf", text: "Đặc điểm của liên kết peptide:", items: [ { label: "a) Chỉ hình thành giữa nhóm -COOH và -OH.", correct: "S" }, { label: "b) Là liên kết amide đặc biệt.", correct: "Đ" }, { label: "c) Kém bền trong môi trường kiềm đun nóng.", correct: "Đ" }, { label: "d) Trong phân tử tetrapeptide có 4 liên kết peptide.", correct: "S" } ], explain: "Tetrapeptide có 3 liên kết peptide." },
+    { id: 28, type: "tf", text: "Tính chất vật lý:", items: [ { label: "a) Trimethylamine là chất khí có mùi tanh của cá.", correct: "Đ" }, { label: "b) Các amino acid đều không màu.", correct: "Đ" }, { label: "c) Tơ tằm có bản chất là protein.", correct: "Đ" }, { label: "d) Aniline nhẹ hơn nước.", correct: "S" } ], explain: "Aniline nặng hơn nước." },
+    { id: 29, type: "tf", text: "Phản ứng màu và nhận biết:", items: [ { label: "a) Dùng quỳ tím có thể nhận biết dung dịch Lysine và Glycine.", correct: "Đ" }, { label: "b) HNO3 đặc phản ứng với một số protein tạo kết tủa màu vàng.", correct: "Đ" }, { label: "c) Dùng nước Bromine nhận biết được methylamine.", correct: "S" }, { label: "d) Cu(OH)2 nhận biết được mọi peptide.", correct: "S" } ], explain: "Methylamine không tạo kết tủa với Br2. Dipeptide không phản ứng biuret." },
+    { id: 30, type: "tf", text: "Hiện tượng thực tế:", items: [ { label: "a) Nấu canh cua thấy gạch cua nổi lên là do đông tụ protein.", correct: "Đ" }, { label: "b) Dùng chanh để khử mùi tanh của cá là do phản ứng trung hòa amine.", correct: "Đ" }, { label: "c) Sữa tươi để chua bị vón cục là do vi khuẩn ăn hết protein.", correct: "S" }, { label: "d) Lòng trắng trứng tan tốt trong nước ở nhiệt độ thường.", correct: "Đ" } ], explain: "Sữa chua vón cục là do acid lactic làm đông tụ protein." }
+  ];
+
+  const bank_mcq = [
+    { id: 31, type: "mcq", text: "Chất nào sau đây là amine bậc 1?", options: ["CH3NH2", "CH3-NH-CH3", "(CH3)3N", "C6H5-NH-CH3"], correct: "CH3NH2", explain: "Có nhóm -NH2." },
+    { id: 32, type: "mcq", text: "Số nguyên tử carbon trong phân tử Alanine là:", options: ["3", "2", "4", "5"], correct: "3", explain: "CH3-CH(NH2)-COOH." },
+    { id: 33, type: "mcq", text: "Dung dịch chất nào sau đây làm quỳ tím hóa xanh?", options: ["Ethylamine", "Aniline", "Glycine", "Valine"], correct: "Ethylamine", explain: "Tính base đủ mạnh." },
+    { id: 34, type: "mcq", text: "Amino acid nào sau đây có tính acid (làm quỳ hóa đỏ)?", options: ["Glutamic acid", "Lysine", "Glycine", "Alanine"], correct: "Glutamic acid", explain: "Có 2 nhóm -COOH." },
+    { id: 35, type: "mcq", text: "Phản ứng của aniline với nước bromine tạo kết tủa màu gì?", options: ["Trắng", "Vàng", "Đỏ", "Xanh"], correct: "Trắng", explain: "2,4,6-tribromoaniline." },
+    { id: 36, type: "mcq", text: "Khối lượng phân tử của Glycine là:", options: ["75", "89", "117", "146"], correct: "75", explain: "C2H5NO2." },
+    { id: 37, type: "mcq", text: "Số liên kết peptide trong phân tử pentapeptide là:", options: ["4", "5", "3", "6"], correct: "4", explain: "5 - 1 = 4." },
+    { id: 38, type: "mcq", text: "Chất nào sau đây không có phản ứng màu biuret?", options: ["Dipeptide", "Tripeptide", "Tetrapeptide", "Protein"], correct: "Dipeptide", explain: "Cần từ tripeptide trở lên." },
+    { id: 39, type: "mcq", text: "Để khử mùi tanh của cá (do các amine sinh ra), ta có thể dùng:", options: ["Giấm ăn", "Nước muối", "Cồn", "Nước xà phòng"], correct: "Giấm ăn", explain: "Giấm chứa acid acetic trung hòa amine." },
+    { id: 40, type: "mcq", text: "Polypeptide chứa từ bao nhiêu gốc alpha-amino acid?", options: ["11 đến 50", "2 đến 10", "Trên 50", "Chỉ 2 gốc"], correct: "11 đến 50", explain: "Theo định nghĩa SGK." },
+    { id: 41, type: "mcq", text: "Dung dịch chất nào sau đây không làm đổi màu quỳ tím?", options: ["Valine", "Lysine", "Methylamine", "Glutamic acid"], correct: "Valine", explain: "Số nhóm -NH2 = số nhóm -COOH." },
+    { id: 42, type: "mcq", text: "Công thức phân tử của methylamine là:", options: ["CH5N", "C2H7N", "C3H9N", "C6H7N"], correct: "CH5N", explain: "CH3NH2 -> CH5N." },
+    { id: 43, type: "mcq", text: "Chất nào sau đây phản ứng được với cả HCl và NaOH?", options: ["Glycine", "Ethylamine", "Aniline", "Acetic acid"], correct: "Glycine", explain: "Là chất lưỡng tính." },
+    { id: 44, type: "mcq", text: "Hợp chất C6H5NH2 có tên thông thường là:", options: ["Aniline", "Benzylamine", "Phenylamine", "Toluene"], correct: "Aniline", explain: "Tên phổ biến nhất." },
+    { id: 45, type: "mcq", text: "Amino acid là hợp chất hữu cơ thuộc loại:", options: ["Tạp chức", "Đơn chức", "Đa chức", "Polymer"], correct: "Tạp chức", explain: "Chứa 2 loại nhóm chức khác nhau." },
+    { id: 46, type: "mcq", text: "Enzyme trong cơ thể sinh vật có bản chất là:", options: ["Protein", "Lipid", "Carbohydrate", "Khoáng chất"], correct: "Protein", explain: "Theo SGK." },
+    { id: 47, type: "mcq", text: "Dipeptide Gly-Ala được tạo từ:", options: ["Glycine và Alanine", "Hai phân tử Glycine", "Hai phân tử Alanine", "Glutamic và Alanine"], correct: "Glycine và Alanine", explain: "Ghép 2 tên viết tắt." },
+    { id: 48, type: "mcq", text: "Trạng thái của Glycine ở điều kiện thường là:", options: ["Chất rắn", "Chất lỏng", "Chất khí", "Dung dịch"], correct: "Chất rắn", explain: "Là hợp chất ion." },
+    { id: 49, type: "mcq", text: "Liên kết peptide là liên kết -CO-NH- giữa hai gốc:", options: ["alpha-amino acid", "beta-amino acid", "amine và acid", "alcohol và acid"], correct: "alpha-amino acid", explain: "Định nghĩa SGK." },
+    { id: 50, type: "mcq", text: "Thuốc thử dùng để nhận biết protein (phản ứng biuret) là:", options: ["Cu(OH)2/OH-", "AgNO3/NH3", "Br2", "HNO3 đặc"], correct: "Cu(OH)2/OH-", explain: "Tạo phức màu tím." },
+    { id: 51, type: "mcq", text: "Amine nào sau đây là chất lỏng ở điều kiện thường?", options: ["Aniline", "Methylamine", "Dimethylamine", "Ethylamine"], correct: "Aniline", explain: "Các amine nhỏ là khí, aniline lớn nên là lỏng." },
+    { id: 52, type: "mcq", text: "Khi cho protein tác dụng với HNO3 đặc xuất hiện màu:", options: ["Vàng", "Tím", "Xanh lam", "Đỏ"], correct: "Vàng", explain: "Phản ứng màu của protein chứa vòng benzene." },
+    { id: 53, type: "mcq", text: "Số nhóm -NH2 trong phân tử Lysine là:", options: ["2", "1", "3", "0"], correct: "2", explain: "Lysine có tính base do dư 1 nhóm -NH2." },
+    { id: 54, type: "mcq", text: "Khối lượng phân tử của Valine là:", options: ["117", "75", "89", "146"], correct: "117", explain: "M của C5H11NO2." },
+    { id: 55, type: "mcq", text: "Chất nào sau đây không thể tham gia phản ứng trùng ngưng?", options: ["Ethylamine", "Glycine", "Alanine", "Valine"], correct: "Ethylamine", explain: "Chỉ có 1 nhóm chức, không thể trùng ngưng." },
+    { id: 56, type: "mcq", text: "Cho Glycine phản ứng với HCl thu được muối có công thức là:", options: ["ClH3N-CH2-COOH", "H2N-CH2-COONa", "ClH3N-CH2-COONa", "H2N-CH2-COCl"], correct: "ClH3N-CH2-COOH", explain: "Gắn HCl vào nhóm -NH2." },
+    { id: 57, type: "mcq", text: "Amine bậc 3 có đặc điểm phân tử chứa nhóm:", options: ["-N-", "-NH-", "-NH2", "=NH"], correct: "-N-", explain: "Nitơ liên kết với 3 gốc C." },
+    { id: 58, type: "mcq", text: "Trong phân tử dipeptide mạch hở, số nhóm -COOH tự do là:", options: ["1", "2", "0", "3"], correct: "1", explain: "Đầu C." },
+    { id: 59, type: "mcq", text: "Hiện tượng xảy ra khi đun nóng lòng trắng trứng là:", options: ["Đông tụ", "Sôi sùng sục", "Bay hơi hết", "Đổi màu tím"], correct: "Đông tụ", explain: "Sự đông tụ protein." },
+    { id: 60, type: "mcq", text: "Để phân biệt dung dịch aniline và methylamine, dùng:", options: ["Nước Bromine", "Quỳ tím", "NaOH", "HCl"], correct: "Nước Bromine", explain: "Aniline tạo kết tủa trắng." }
+  ];
   // ==========================================
 
   const bank_fib = [
