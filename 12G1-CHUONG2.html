@@ -327,15 +327,17 @@ const bank_fib = [
 
     const rBox = document.getElementById('reviewContainer'); rBox.innerHTML = "";
     let detailText = `BÀI LÀM CHI TIẾT\nHọ tên: ${studentInfo.name} | Lớp: ${studentInfo.sClass}\nĐiểm: ${score}/10 | Mã phòng: ${decodedTargetPasscode}\n\n`;
-
-    reviewData.forEach(r => {
+reviewData.forEach(r => {
       const b = document.createElement('div'); b.className = "question-box";
       b.innerHTML = `<span class="badge ${r.isRight ? 'badge-pass' : 'badge-fail'}">${r.isRight ? '✓ ĐÚNG' : '✗ SAI'}</span>
         <p class="question-text">Phần ${r.pIdx} - Câu ${r.num}: ${r.text}</p><p><b>Bài làm:</b><br>${r.userAns}</p>
         ${!r.isRight ? `<p style="color:var(--green)"><b>Đáp án:</b> ${r.correct}</p>` : ''}<div class="explanation"><b>Giải thích:</b> ${r.explain}</div>`;
       rBox.appendChild(b);
-      detailText += `P${r.pIdx} - C${r.num}: ${r.text}\n> Chọn: ${r.userAns.replace(/<br>/g, ', ')} -> ${r.isRight ? 'ĐÚNG' : 'SAI'}\n\n`;
+      
+      // ĐÂY LÀ DÒNG ĐƯỢC RÚT GỌN LẠI DÀNH CHO GOOGLE DRIVE
+      detailText += `P${r.pIdx} - C${r.num}:\n> Chọn: ${r.userAns.replace(/<br>/g, ', ')} -> ${r.isRight ? 'ĐÚNG' : 'SAI'}\n\n`;
     });
+   
 
     document.getElementById('screen-exam').classList.add('hidden'); document.getElementById('screen-result').classList.remove('hidden');
     window.scrollTo(0, 0);
