@@ -1,1 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Khảo Sát Hóa Học - Kênh Kiểm Tra</title>
+  <style>
+    :root { --primary: #1e3a8a; --secondary: #0284c7; --bg: #f1f5f9; --card: #ffffff; --border: #cbd5e1; --green: #16a34a; --red: #dc2626; --text: #0f172a; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); padding: 12px; margin: 0; line-height: 1.6; font-size: 17px; }
+    .container { max-width: 900px; margin: 0 auto; background: var(--card); border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .hidden { display: none !important; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 17px; color: #334155; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 10px; font-size: 17px; }
+    input[type="text"]:focus { outline: none; border-color: var(--primary); }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 18px 24px; font-size: 18px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
+    .btn:disabled { background: #94a3b8; }
+    .btn-green { background: var(--green); margin-top: 16px; }
+    .question-box { border: 2px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; background: #fff; }
+    .question-text { font-size: 18px; font-weight: 600; margin-top: 0; margin-bottom: 16px; color: var(--text); }
+    .part-title { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 8px; margin-top: 32px; margin-bottom: 20px; font-size: 20px; font-weight: bold; }
+    .opt-label { display: block; padding: 16px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; font-size: 17px; }
+    .opt-label input[type="radio"] { transform: scale(1.5); margin-right: 16px; }
+    .tf-item { display: flex; flex-direction: column; padding: 16px 0; border-bottom: 1px dashed var(--border); }
+    .tf-item-text { font-size: 17px; margin-bottom: 12px; font-weight: 500; }
+    .tf-options { display: flex; gap: 16px; }
+    .tf-options label { flex: 1; padding: 14px; text-align: center; border: 2px solid var(--border); border-radius: 10px; background: #f8fafc; margin: 0; }
+    .tf-options input[type="radio"] { transform: scale(1.5); margin-right: 10px; }
+    .explanation { margin-top: 16px; padding: 16px; background: #eff6ff; border-left: 5px solid var(--secondary); font-size: 16px; border-radius: 0 8px 8px 0; }
+    .badge { display: inline-block; padding: 6px 12px; border-radius: 12px; font-weight: bold; font-size: 14px; margin-bottom: 12px; }
+    .badge-pass { background: #dcfce7; color: var(--green); }
+    .badge-fail { background: #fee2e2; color: var(--red); }
+    .alert-box { background: #fffbeb; border: 2px solid #f59e0b; color: #b45309; padding: 16px; border-radius: 12px; margin-bottom: 24px; font-weight: bold; text-align: center; font-size: 16px; }
+    .teacher-box { background: #f0fdf4; border: 2px dashed var(--green); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+    .exam-header-sticky { position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); z-index: 99; border-bottom: 2px solid var(--border); padding: 16px 0; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .timer-badge { background: var(--red); color: #fff; padding: 8px 20px; border-radius: 24px; font-size: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div class="container">
 
+  <div id="screen-info">
+    <h2 style="color:var(--primary); margin-top:0; text-align:center; font-size: 26px;">Khảo Sát Kiến Thức Hóa Học</h2>
+    
+    <div id="teacherControlPanel" class="teacher-box hidden">
+      <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quản Trị Tạo Link (Lớp 12G1)</h3>
+      <div class="form-group"><label>Thời gian (Phút):</label><input type="number" id="gvSetMinutes" value="15"></div>
+      <div class="form-group"><label>Mã bảo mật phòng thi:</label><input type="text" id="gvSecretInput" placeholder="Ví dụ: 12G1_KT"></div>
+      <button type="button" class="btn btn-green" onclick="generateStudentLink()">Tạo Link Thi Mã Hóa</button>
+      <div id="generatedLinkBox" style="margin-top:16px; font-weight:bold; color:var(--primary); word-break: break-all; display:none; background: #e0f2fe; padding: 12px; border-radius: 8px;"></div>
+    </div>
+
+    <div class="alert-box">⚠️ Chỉ được làm bài khi nhập đúng mã bảo mật từ Giáo viên.</div>
+
+    <div class="form-group"><label>Họ và tên học sinh:</label><input type="text" id="stuName" placeholder="Nhập đầy đủ họ tên..."></div>
+    <div class="form-group"><label>Lớp / Số thiết bị:</label><input type="text" id="stuClass" placeholder="Ví dụ: 12G1 - Tablet 05"></div>
+    <div class="form-group"><label style="color: var(--red);">Mã mở phòng thi:</label><input type="text" id="roomPasscode" placeholder="Nhập mã do GV cung cấp..." oninput="checkPasscode()" style="border-color: var(--red);"></div>
+    <div style="margin-bottom: 24px; font-weight: 600; color: #475569; font-size: 16px; text-align: center;">Thời lượng: <span id="currentDurationDisplay" style="color:var(--primary); font-size:18px;">-- phút</span></div>
+
+    <button class="btn" id="btnStartTest" onclick="startTest()" disabled>Vui Lòng Nhập Mã Để Vào Thi</button>
+  </div>
+
+  <div id="screen-exam" class="hidden">
+    <div class="exam-header-sticky">
+      <div style="flex: 1;"><b id="examHeader" style="color:var(--primary); font-size:18px; display:block;"></b><span id="cheatWarning" style="color:var(--red); font-weight:bold; font-size:14px; display: none; margin-top: 4px;"></span></div>
+      <div class="timer-badge" id="timerBadge">00:00</div>
+    </div>
+    <div id="examContainer"></div>
+    <button class="btn btn-green" id="btnSubmitExam" onclick="submitExam(false)" style="margin-top: 30px; font-size: 20px; padding: 20px;">Xác Nhận Nộp Bài</button>
+  </div>
+
+  <div id="screen-result" class="hidden">
+    <h2 style="color:var(--green); margin-top:0; text-align:center; font-size: 28px;">Đã Nộp Bài Thành Công!</h2>
+    <div style="background: #f8fafc; padding: 24px; border: 2px solid var(--border); border-radius: 16px; margin-bottom: 24px; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 18px;">Thí sinh: <b id="resName"></b> | Lớp: <span id="resClass"></span></p>
+      <p style="margin: 0; font-size: 24px;">Điểm số: <b id="resScore" style="color:var(--red); font-size: 42px;"></b></p>
+      <p id="resCheat" style="color:var(--red); font-weight:bold; font-size:16px; margin-top: 12px;"></p>
+    </div>
+    <div id="syncStatus" style="font-weight:bold; font-size: 18px; margin-bottom: 24px; color: var(--secondary); text-align: center; padding: 12px; background: #eff6ff; border-radius: 8px;">Đang đồng bộ kết quả...</div>
+    <h3 style="border-top: 3px solid var(--border); padding-top: 20px; color: var(--primary);">Xem Lại Chi Tiết</h3>
+    <div id="reviewContainer"></div>
+  </div>
+</div>
+
+<script>
+  // DÁN LINK APPS SCRIPT CỦA THẦY VÀO ĐÂY
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHn2-JkrxzqYu8SZ_1y2lDMSXZU6T26EIPaguwzcCmBl6KcyLV2QC-33XXYkjIUidc/exec";
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  let durationMinutes = parseInt(urlParams.get('time'), 10) || 15;
+  const encodedKeyFromUrl = urlParams.get('key'); 
+  let decodedTargetPasscode = "HOA12"; 
+  if (encodedKeyFromUrl) { try { decodedTargetPasscode = decodeURIComponent(atob(encodedKeyFromUrl)); } catch(e) { decodedTargetPasscode = "HOA12"; } }
+
+  let timerInterval = null;
+  let secondsLeft = 0;
+  let isExamActive = false;
+  let cheatCount = 0;
+
+  window.addEventListener("DOMContentLoaded", () => {
+    if (urlParams.get('gv') === '1') document.getElementById('teacherControlPanel').classList.remove('hidden');
+    document.getElementById('currentDurationDisplay').innerText = durationMinutes + " phút";
+  });
+
+  function generateStudentLink() {
+    const mins = parseInt(document.getElementById('gvSetMinutes').value, 10) || 15;
+    const pass = document.getElementById('gvSecretInput').value.trim();
+    if (!pass) { alert("Vui lòng nhập mã bảo mật!"); return; }
+    const encodedPass = btoa(encodeURIComponent(pass.toUpperCase()));
+    const studentUrl = `${window.location.origin + window.location.pathname}?time=${mins}&key=${encodedPass}`;
+    document.getElementById('generatedLinkBox').style.display = "block";
+    document.getElementById('generatedLinkBox').innerHTML = `Gửi link này cho HS:<br><a href="${studentUrl}" target="_blank" style="color:var(--green); word-break: break-all;">${studentUrl}</a>`;
+  }
+
+  function checkPasscode() {
+    const inputCode = document.getElementById('roomPasscode').value.trim().toUpperCase();
+    const btn = document.getElementById('btnStartTest');
+    if (inputCode === decodedTargetPasscode.toUpperCase()) {
+      btn.disabled = false; btn.innerText = "Bắt Đầu Làm Bài Ngay"; btn.style.background = "var(--green)";
+    } else {
+      btn.disabled = true; btn.innerText = "Vui Lòng Nhập Mã Để Vào Thi"; btn.style.background = "#94a3b8";
+    }
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && isExamActive) {
+      cheatCount++;
+      document.getElementById('cheatWarning').style.display = "block";
+      document.getElementById('cheatWarning').innerText = `⚠️ Vi phạm thoát màn hình: ${cheatCount} lần`;
+    }
+  });
+
+  function shuffle(arr) {
+    let a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  const bank_fib = [
+    { id: 1, type: "fib", text: "Amine bậc 1 có chứa nhóm chức là ___", correct: "NH2", explain: "Đặc điểm của amine bậc 1." },
+    { id: 2, type: "fib", text: "Tên thay thế của CH3NH2 là ___", correct: "methanamine", explain: "Tên hydrocarbon + amine." },
+    { id: 3, type: "fib", text: "Dung dịch methylamine làm quỳ tím chuyển sang màu ___", correct: "xanh", explain: "Methylamine có tính base." },
+    { id: 4, type: "fib", text: "Amino acid là hợp chất hữu cơ tạp chức chứa nhóm amino và nhóm ___", correct: "carboxyl", explain: "Định nghĩa amino acid." },
+    { id: 5, type: "fib", text: "Công thức của Glycine là H2N-CH2-___", correct: "COOH", explain: "Glycine là amino acid đơn giản nhất." },
+    { id: 6, type: "fib", text: "Dung dịch Glycine làm quỳ tím chuyển màu ___", correct: "không", explain: "Glycine có 1 nhóm -NH2 và 1 nhóm -COOH." },
+    { id: 7, type: "fib", text: "Liên kết -CO-NH- giữa hai đơn vị alpha-amino acid gọi là liên kết ___", correct: "peptide", explain: "Định nghĩa liên kết peptide." },
+    { id: 8, type: "fib", text: "Phân tử tripeptide có chứa ___ liên kết peptide.", correct: "2", explain: "Số liên kết = Số gốc - 1." },
+    { id: 9, type: "fib", text: "Phản ứng màu biuret là phản ứng của peptide với Cu(OH)2 trong môi trường ___", correct: "kiềm", explain: "Điều kiện phản ứng màu biuret." },
+    { id: 10, type: "fib", text: "Hiện tượng protein bị đông đặc lại khi đun nóng gọi là sự ___ protein.", correct: "đông tụ", explain: "Tính chất vật lý của protein." },
+    { id: 11, type: "fib", text: "Aniline phản ứng với nước bromine sinh ra kết tủa màu ___", correct: "trắng", explain: "Phản ứng thế vào vòng benzene." },
+    { id: 12, type: "fib", text: "Dung dịch chứa amino acid Glutamic acid làm quỳ tím hóa ___", correct: "đỏ", explain: "Có 2 nhóm -COOH và 1 nhóm -NH2." },
+    { id: 13, type: "fib", text: "Peptide được tạo thành từ 2 đến 10 gốc alpha-amino acid gọi là ___", correct: "oligopeptide", explain: "Phân loại peptide theo SGK." },
+    { id: 14, type: "fib", text: "Khi thủy phân hoàn toàn protein đơn giản thu được các ___", correct: "alpha-amino acid", explain: "Thành phần cấu tạo của protein." },
+    { id: 15, type: "fib", text: "Khối lượng phân tử của Alanine là ___", correct: "89", explain: "M của CH3-CH(NH2)-COOH." },
+    { id: 16, type: "fib", text: "Amino acid tồn tại chủ yếu ở dạng ion ___", correct: "lưỡng cực", explain: "Do tương tác giữa nhóm acid và base trong cùng phân tử." },
+    { id: 17, type: "fib", text: "Chất khí sinh ra khi cho muối phenylammonium chloride tác dụng với NaOH là ___", correct: "aniline", explain: "Aniline được đẩy ra khỏi muối." },
+    { id: 18, type: "fib", text: "Để rửa sạch ống nghiệm dính aniline, người ta tráng ống nghiệm bằng dung dịch ___", correct: "hcl", explain: "HCl phản ứng tạo muối tan." }
+  ];
+
+  const bank_tf = [
+    { id: 19, type: "tf", text: "Cho các phát biểu về Aniline (C6H5NH2):", items: [ { label: "a) Là chất khí ở điều kiện thường.", correct: "S" }, { label: "b) Tan rất ít trong nước lạnh.", correct: "Đ" }, { label: "c) Có tính base yếu hơn amonia.", correct: "Đ" }, { label: "d) Làm xanh giấy quỳ tím ẩm.", correct: "S" } ], explain: "Aniline lỏng, tính base rất yếu không đổi màu quỳ." },
+    { id: 20, type: "tf", text: "Về tính chất của Amino acid:", items: [ { label: "a) Là chất lỏng ở điều kiện thường.", correct: "S" }, { label: "b) Dễ tan trong nước.", correct: "Đ" }, { label: "c) Vừa tác dụng với acid, vừa tác dụng với base.", correct: "Đ" }, { label: "d) Có nhiệt độ nóng chảy thấp.", correct: "S" } ], explain: "Amino acid là hợp chất ion nên là chất rắn kết tinh, nóng chảy cao." },
+    { id: 21, type: "tf", text: "Nhận định về Peptide và Protein:", items: [ { label: "a) Dipeptide có phản ứng màu biuret.", correct: "S" }, { label: "b) Protein phức tạp có chứa thêm thành phần phi protein.", correct: "Đ" }, { label: "c) Khi vắt chanh vào sữa bò thấy có kết tủa là do sự đông tụ protein.", correct: "Đ" }, { label: "d) Mọi protein đều tan tốt trong nước nóng.", correct: "S" } ], explain: "Dipeptide không có phản ứng biuret. Protein sừng/tóc không tan." },
+    { id: 22, type: "tf", text: "So sánh tính base của các Amine:", items: [ { label: "a) CH3NH2 mạnh hơn NH3.", correct: "Đ" }, { label: "b) C6H5NH2 mạnh hơn NH3.", correct: "S" }, { label: "c) (CH3)2NH mạnh hơn CH3NH2.", correct: "Đ" }, { label: "d) C6H5NH2 phản ứng được với NaOH.", correct: "S" } ], explain: "Gốc alkyl làm tăng tính base, gốc phenyl làm giảm tính base." },
+    { id: 23, type: "tf", text: "Cho các phát biểu về Glycine (H2N-CH2-COOH):", items: [ { label: "a) Tham gia phản ứng trùng ngưng.", correct: "Đ" }, { label: "b) Tác dụng với ethanol sinh ra ester.", correct: "Đ" }, { label: "c) Phân tử có 2 nguyên tử Oxygen.", correct: "Đ" }, { label: "d) Là thành phần chính của bột ngọt (mì chính).", correct: "S" } ], explain: "Mì chính là muối của Glutamic acid, không phải Glycine." },
+    { id: 24, type: "tf", text: "Phản ứng của hợp chất chứa Nitrogen:", items: [ { label: "a) Ethylamine tác dụng với HCl tạo muối ethylammonium chloride.", correct: "Đ" }, { label: "b) Alanine không phản ứng với NaOH.", correct: "S" }, { label: "c) Thủy phân hoàn toàn protein trong acid thu được các beta-amino acid.", correct: "S" }, { label: "d) Phản ứng màu biuret tạo dung dịch màu tím.", correct: "Đ" } ], explain: "Protein thủy phân sinh ra alpha-amino acid." },
+    { id: 25, type: "tf", text: "Ứng dụng của các chất:", items: [ { label: "a) Aniline được dùng để sản xuất phẩm nhuộm.", correct: "Đ" }, { label: "b) Các amino acid thiên nhiên là cơ sở kiến tạo protein.", correct: "Đ" }, { label: "c) Muối diammonium glutamate làm thuốc hỗ trợ thần kinh.", correct: "S" }, { label: "d) Enzyme có bản chất là protein.", correct: "Đ" } ], explain: "Muối monosodium (chứ không phải diammonium) dùng làm bột ngọt." },
+    { id: 26, type: "tf", text: "Về danh pháp và cấu tạo:", items: [ { label: "a) Tên bán hệ thống của H2N-CH(CH3)-COOH là Alanine.", correct: "Đ" }, { label: "b) Phân tử Valine có 5 nguyên tử Carbon.", correct: "Đ" }, { label: "c) Amine C2H7N có 3 đồng phân cấu tạo.", correct: "S" }, { label: "d) Đầu N của một chuỗi polypeptide là nhóm -NH2 tự do.", correct: "Đ" } ], explain: "C2H7N chỉ có 2 đồng phân: ethylamine và dimethylamine." },
+    { id: 27, type: "tf", text: "Đặc điểm của liên kết peptide:", items: [ { label: "a) Chỉ hình thành giữa nhóm -COOH và -OH.", correct: "S" }, { label: "b) Là liên kết amide đặc biệt.", correct: "Đ" }, { label: "c) Kém bền trong môi trường kiềm đun nóng.", correct: "Đ" }, { label: "d) Trong phân tử tetrapeptide có 4 liên kết peptide.", correct: "S" } ], explain: "Tetrapeptide có 3 liên kết peptide." },
+    { id: 28, type: "tf", text: "Tính chất vật lý:", items: [ { label: "a) Trimethylamine là chất khí có mùi tanh của cá.", correct: "Đ" }, { label: "b) Các amino acid đều không màu.", correct: "Đ" }, { label: "c) Tơ tằm có bản chất là protein.", correct: "Đ" }, { label: "d) Aniline nhẹ hơn nước.", correct: "S" } ], explain: "Aniline nặng hơn nước." },
+    { id: 29, type: "tf", text: "Phản ứng màu và nhận biết:", items: [ { label: "a) Dùng quỳ tím có thể nhận biết dung dịch Lysine và Glycine.", correct: "Đ" }, { label: "b) HNO3 đặc phản ứng với một số protein tạo kết tủa màu vàng.", correct: "Đ" }, { label: "c) Dùng nước Bromine nhận biết được methylamine.", correct: "S" }, { label: "d) Cu(OH)2 nhận biết được mọi peptide.", correct: "S" } ], explain: "Methylamine không tạo kết tủa với Br2. Dipeptide không phản ứng biuret." },
+    { id: 30, type: "tf", text: "Hiện tượng thực tế:", items: [ { label: "a) Nấu canh cua thấy gạch cua nổi lên là do đông tụ protein.", correct: "Đ" }, { label: "b) Dùng chanh để khử mùi tanh của cá là do phản ứng trung hòa amine.", correct: "Đ" }, { label: "c) Sữa tươi để chua bị vón cục là do vi khuẩn ăn hết protein.", correct: "S" }, { label: "d) Lòng trắng trứng tan tốt trong nước ở nhiệt độ thường.", correct: "Đ" } ], explain: "Sữa chua vón cục là do acid lactic làm đông tụ protein." }
+  ];
+
+  const bank_mcq = [
+    { id: 31, type: "mcq", text: "Chất nào sau đây là amine bậc 1?", options: ["CH3NH2", "CH3-NH-CH3", "(CH3)3N", "C6H5-NH-CH3"], correct: "CH3NH2", explain: "Có nhóm -NH2." },
+    { id: 32, type: "mcq", text: "Số nguyên tử carbon trong phân tử Alanine là:", options: ["3", "2", "4", "5"], correct: "3", explain: "CH3-CH(NH2)-COOH." },
+    { id: 33, type: "mcq", text: "Dung dịch chất nào sau đây làm quỳ tím hóa xanh?", options: ["Ethylamine", "Aniline", "Glycine", "Valine"], correct: "Ethylamine", explain: "Tính base đủ mạnh." },
+    { id: 34, type: "mcq", text: "Amino acid nào sau đây có tính acid (làm quỳ hóa đỏ)?", options: ["Glutamic acid", "Lysine", "Glycine", "Alanine"], correct: "Glutamic acid", explain: "Có 2 nhóm -COOH." },
+    { id: 35, type: "mcq", text: "Phản ứng của aniline với nước bromine tạo kết tủa màu gì?", options: ["Trắng", "Vàng", "Đỏ", "Xanh"], correct: "Trắng", explain: "2,4,6-tribromoaniline." },
+    { id: 36, type: "mcq", text: "Khối lượng phân tử của Glycine là:", options: ["75", "89", "117", "146"], correct: "75", explain: "C2H5NO2." },
+    { id: 37, type: "mcq", text: "Số liên kết peptide trong phân tử pentapeptide là:", options: ["4", "5", "3", "6"], correct: "4", explain: "5 - 1 = 4." },
+    { id: 38, type: "mcq", text: "Chất nào sau đây không có phản ứng màu biuret?", options: ["Dipeptide", "Tripeptide", "Tetrapeptide", "Protein"], correct: "Dipeptide", explain: "Cần từ tripeptide trở lên." },
+    { id: 39, type: "mcq", text: "Để khử mùi tanh của cá (do các amine sinh ra), ta có thể dùng:", options: ["Giấm ăn", "Nước muối", "Cồn", "Nước xà phòng"], correct: "Giấm ăn", explain: "Giấm chứa acid acetic trung hòa amine." },
+    { id: 40, type: "mcq", text: "Polypeptide chứa từ bao nhiêu gốc alpha-amino acid?", options: ["11 đến 50", "2 đến 10", "Trên 50", "Chỉ 2 gốc"], correct: "11 đến 50", explain: "Theo định nghĩa SGK." },
+    { id: 41, type: "mcq", text: "Dung dịch chất nào sau đây không làm đổi màu quỳ tím?", options: ["Valine", "Lysine", "Methylamine", "Glutamic acid"], correct: "Valine", explain: "Số nhóm -NH2 = số nhóm -COOH." },
+    { id: 42, type: "mcq", text: "Công thức phân tử của methylamine là:", options: ["CH5N", "C2H7N", "C3H9N", "C6H7N"], correct: "CH5N", explain: "CH3NH2 -> CH5N." },
+    { id: 43, type: "mcq", text: "Chất nào sau đây phản ứng được với cả HCl và NaOH?", options: ["Glycine", "Ethylamine", "Aniline", "Acetic acid"], correct: "Glycine", explain: "Là chất lưỡng tính." },
+    { id: 44, type: "mcq", text: "Hợp chất C6H5NH2 có tên thông thường là:", options: ["Aniline", "Benzylamine", "Phenylamine", "Toluene"], correct: "Aniline", explain: "Tên phổ biến nhất." },
+    { id: 45, type: "mcq", text: "Amino acid là hợp chất hữu cơ thuộc loại:", options: ["Tạp chức", "Đơn chức", "Đa chức", "Polymer"], correct: "Tạp chức", explain: "Chứa 2 loại nhóm chức khác nhau." },
+    { id: 46, type: "mcq", text: "Enzyme trong cơ thể sinh vật có bản chất là:", options: ["Protein", "Lipid", "Carbohydrate", "Khoáng chất"], correct: "Protein", explain: "Theo SGK." },
+    { id: 47, type: "mcq", text: "Dipeptide Gly-Ala được tạo từ:", options: ["Glycine và Alanine", "Hai phân tử Glycine", "Hai phân tử Alanine", "Glutamic và Alanine"], correct: "Glycine và Alanine", explain: "Ghép 2 tên viết tắt." },
+    { id: 48, type: "mcq", text: "Trạng thái của Glycine ở điều kiện thường là:", options: ["Chất rắn", "Chất lỏng", "Chất khí", "Dung dịch"], correct: "Chất rắn", explain: "Là hợp chất ion." },
+    { id: 49, type: "mcq", text: "Liên kết peptide là liên kết -CO-NH- giữa hai gốc:", options: ["alpha-amino acid", "beta-amino acid", "amine và acid", "alcohol và acid"], correct: "alpha-amino acid", explain: "Định nghĩa SGK." },
+    { id: 50, type: "mcq", text: "Thuốc thử dùng để nhận biết protein (phản ứng biuret) là:", options: ["Cu(OH)2/OH-", "AgNO3/NH3", "Br2", "HNO3 đặc"], correct: "Cu(OH)2/OH-", explain: "Tạo phức màu tím." },
+    { id: 51, type: "mcq", text: "Amine nào sau đây là chất lỏng ở điều kiện thường?", options: ["Aniline", "Methylamine", "Dimethylamine", "Ethylamine"], correct: "Aniline", explain: "Các amine nhỏ là khí, aniline lớn nên là lỏng." },
+    { id: 52, type: "mcq", text: "Khi cho protein tác dụng với HNO3 đặc xuất hiện màu:", options: ["Vàng", "Tím", "Xanh lam", "Đỏ"], correct: "Vàng", explain: "Phản ứng màu của protein chứa vòng benzene." },
+    { id: 53, type: "mcq", text: "Số nhóm -NH2 trong phân tử Lysine là:", options: ["2", "1", "3", "0"], correct: "2", explain: "Lysine có tính base do dư 1 nhóm -NH2." },
+    { id: 54, type: "mcq", text: "Khối lượng phân tử của Valine là:", options: ["117", "75", "89", "146"], correct: "117", explain: "M của C5H11NO2." },
+    { id: 55, type: "mcq", text: "Chất nào sau đây không thể tham gia phản ứng trùng ngưng?", options: ["Ethylamine", "Glycine", "Alanine", "Valine"], correct: "Ethylamine", explain: "Chỉ có 1 nhóm chức, không thể trùng ngưng." },
+    { id: 56, type: "mcq", text: "Cho Glycine phản ứng với HCl thu được muối có công thức là:", options: ["ClH3N-CH2-COOH", "H2N-CH2-COONa", "ClH3N-CH2-COONa", "H2N-CH2-COCl"], correct: "ClH3N-CH2-COOH", explain: "Gắn HCl vào nhóm -NH2." },
+    { id: 57, type: "mcq", text: "Amine bậc 3 có đặc điểm phân tử chứa nhóm:", options: ["-N-", "-NH-", "-NH2", "=NH"], correct: "-N-", explain: "Nitơ liên kết với 3 gốc C." },
+    { id: 58, type: "mcq", text: "Trong phân tử dipeptide mạch hở, số nhóm -COOH tự do là:", options: ["1", "2", "0", "3"], correct: "1", explain: "Đầu C." },
+    { id: 59, type: "mcq", text: "Hiện tượng xảy ra khi đun nóng lòng trắng trứng là:", options: ["Đông tụ", "Sôi sùng sục", "Bay hơi hết", "Đổi màu tím"], correct: "Đông tụ", explain: "Sự đông tụ protein." },
+    { id: 60, type: "mcq", text: "Để phân biệt dung dịch aniline và methylamine, dùng:", options: ["Nước Bromine", "Quỳ tím", "NaOH", "HCl"], correct: "Nước Bromine", explain: "Aniline tạo kết tủa trắng." }
+  ];
+
+  let studentExam = [];
+  let studentInfo = {};
+
+  function startTimer() {
+    secondsLeft = durationMinutes * 60;
+    const badge = document.getElementById('timerBadge');
+    timerInterval = setInterval(() => {
+      let m = Math.floor(secondsLeft / 60); let s = secondsLeft % 60;
+      badge.innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+      if (secondsLeft <= 60) badge.style.background = "#b91c1c";
+      if (secondsLeft <= 0) { clearInterval(timerInterval); alert("Đã hết thời gian làm bài!"); submitExam(true); }
+      secondsLeft--;
+    }, 1000);
+  }
+
+  function startTest() {
+    const name = document.getElementById('stuName').value.trim();
+    const sClass = document.getElementById('stuClass').value.trim();
+    if (!name || !sClass) { alert("Vui lòng điền họ tên và thông tin thiết bị!"); return; }
+
+    studentInfo = { name, sClass };
+    document.getElementById('examHeader').innerText = `Học sinh: ${name} (${sClass})`;
+    isExamActive = true; cheatCount = 0; document.getElementById('cheatWarning').style.display = "none";
+
+    const picked_fib = shuffle(bank_fib).slice(0, 6);
+    const picked_tf = shuffle(bank_tf).slice(0, 4);
+    const picked_mcq = shuffle(bank_mcq).slice(0, 10).map(q => { let qCopy = {...q}; qCopy.options = shuffle(q.options); return qCopy; });
+
+    studentExam = [
+      { partIndex: 1, partTitle: "PHẦN I: TRẢ LỜI NGẮN / ĐIỀN KHUYẾT", list: picked_fib },
+      { partIndex: 2, partTitle: "PHẦN II: TRẮC NGHIỆM ĐÚNG/SAI", list: picked_tf },
+      { partIndex: 3, partTitle: "PHẦN III: TRẮC NGHIỆM NHIỀU LỰA CHỌN", list: picked_mcq }
+    ];
+
+    const box = document.getElementById('examContainer');
+    box.innerHTML = "";
+
+    studentExam.forEach(part => {
+      if (part.list.length === 0) return;
+      const pTitle = document.createElement('h3'); pTitle.className = "part-title"; pTitle.innerText = part.partTitle; box.appendChild(pTitle);
+      let questionCounter = 1;
+
+      part.list.forEach(q => {
+        const qDiv = document.createElement('div'); qDiv.className = "question-box";
+        let html = `<p class="question-text">Câu ${questionCounter}: ${q.text}</p>`;
+        
+        if (q.type === 'fib') { 
+          html += `<input type="text" id="ans_${q.id}" placeholder="Nhập câu trả lời...">`; 
+        } else if (q.type === 'mcq') { 
+          q.options.forEach(opt => { html += `<label class="opt-label"><input type="radio" name="q_${q.id}" value="${opt}"> ${opt}</label>`; }); 
+        } else if (q.type === 'tf') { 
+          q.items.forEach((item, iIdx) => { html += `<div class="tf-item"><div class="tf-item-text">${item.label}</div><div class="tf-options"><label><input type="radio" name="tf_${q.id}_${iIdx}" value="Đ"> Đúng</label><label><input type="radio" name="tf_${q.id}_${iIdx}" value="S"> Sai</label></div></div>`; }); 
+        }
+        
+        qDiv.innerHTML = html; box.appendChild(qDiv); questionCounter++;
+      });
+    });
+
+    document.getElementById('screen-info').classList.add('hidden');
+    document.getElementById('screen-exam').classList.remove('hidden');
+    startTimer();
+    window.scrollTo(0, 0);
+  }
+
+  function submitExam(isAuto = false) {
+    if (!isAuto && !confirm("Bạn có chắc chắn muốn nộp bài? Hệ thống sẽ ghi nhận điểm ngay lập tức.")) return;
+    clearInterval(timerInterval); isExamActive = false; document.getElementById('btnSubmitExam').disabled = true;
+
+    let totalQuestions = 0; let correctCount = 0; let reviewData = [];
+
+    studentExam.forEach(part => {
+      let count = 1;
+      part.list.forEach(q => {
+        totalQuestions++;
+        if (q.type === 'fib') {
+          const userAns = document.getElementById(`ans_${q.id}`) ? document.getElementById(`ans_${q.id}`).value.trim() : "";
+          const isRight = (userAns.toLowerCase() === q.correct.toLowerCase());
+          if (isRight) correctCount++; reviewData.push({ pIdx: part.partIndex, num: count, text: q.text, userAns: userAns || "(Trống)", correct: q.correct, isRight: isRight, explain: q.explain });
+        } else if (q.type === 'mcq') {
+          const sel = document.querySelector(`input[name="q_${q.id}"]:checked`);
+          const userAns = sel ? sel.value : "(Trống)";
+          const isRight = (userAns === q.correct);
+          if (isRight) correctCount++; reviewData.push({ pIdx: part.partIndex, num: count, text: q.text, userAns: userAns, correct: q.correct, isRight: isRight, explain: q.explain });
+        } else if (q.type === 'tf') {
+          let tfRight = 0; let details = [];
+          q.items.forEach((item, iIdx) => {
+            const sel = document.querySelector(`input[name="tf_${q.id}_${iIdx}"]:checked`);
+            const userVal = sel ? sel.value : "-";
+            if (userVal === item.correct) tfRight++; details.push(`${item.label} (Chọn: ${userVal} - Đ/A: ${item.correct})`);
+          });
+          const isFull = (tfRight === q.items.length);
+          if (isFull) correctCount++; reviewData.push({ pIdx: part.partIndex, num: count, text: q.text, userAns: details.join("<br>"), correct: "Tất cả ý đúng", isRight: isFull, explain: q.explain });
+        }
+        count++;
+      });
+    });
+
+    const score = ((correctCount / totalQuestions) * 10).toFixed(1);
+    document.getElementById('resName').innerText = studentInfo.name; document.getElementById('resClass').innerText = studentInfo.sClass; document.getElementById('resScore').innerText = `${score} / 10`;
+
+    const rBox = document.getElementById('reviewContainer'); rBox.innerHTML = "";
+    let detailText = `BÀI LÀM CHI TIẾT\nHọ tên: ${studentInfo.name} | Lớp: ${studentInfo.sClass}\nĐiểm: ${score}/10 | Mã phòng: ${decodedTargetPasscode}\n\n`;
+
+    reviewData.forEach(r => {
+      const b = document.createElement('div'); b.className = "question-box";
+      b.innerHTML = `<span class="badge ${r.isRight ? 'badge-pass' : 'badge-fail'}">${r.isRight ? '✓ ĐÚNG' : '✗ SAI'}</span>
+        <p class="question-text">Phần ${r.pIdx} - Câu ${r.num}: ${r.text}</p><p><b>Bài làm:</b><br>${r.userAns}</p>
+        ${!r.isRight ? `<p style="color:var(--green)"><b>Đáp án:</b> ${r.correct}</p>` : ''}<div class="explanation"><b>Giải thích:</b> ${r.explain}</div>`;
+      rBox.appendChild(b);
+      detailText += `P${r.pIdx} - C${r.num}: ${r.text}\n> Chọn: ${r.userAns.replace(/<br>/g, ', ')} -> ${r.isRight ? 'ĐÚNG' : 'SAI'}\n\n`;
+    });
+
+    document.getElementById('screen-exam').classList.add('hidden'); document.getElementById('screen-result').classList.remove('hidden');
+    window.scrollTo(0, 0);
+
+    if (SCRIPT_URL.includes("http")) {
+      document.getElementById('syncStatus').innerHTML = `Đang đồng bộ kết quả về hệ thống...`;
+      fetch(SCRIPT_URL, { 
+        method: "POST", 
+        body: JSON.stringify({
+          ThoiGian: new Date().toLocaleString("vi-VN"), HoTen: studentInfo.name, Lop_SoMay: studentInfo.sClass, MaPhong: decodedTargetPasscode,
+          DiemSo: score, SoCauDung: `${correctCount}/${totalQuestions}`, ChiTietBaiLam: detailText, ViPham: `${cheatCount} lần thoát màn hình`
+        })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if(res.status === 'success') document.getElementById('syncStatus').innerHTML = `<span style="color:var(--green)">✓ Đã nộp bài thành công!</span>`;
+        else document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi xử lý: ${res.message}</span>`;
+      }).catch(err => {
+        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi mạng. Bài làm đã lưu trên máy.</span>`;
+      });
+    }
+  }
+</script>
+</body>
+</html>
