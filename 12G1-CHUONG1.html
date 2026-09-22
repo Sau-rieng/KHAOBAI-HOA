@@ -1,1 +1,352 @@
 
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Khảo Sát Hóa Học - Kênh Kiểm Tra</title>
+  <style>
+    :root { --primary: #1e3a8a; --secondary: #0284c7; --bg: #f1f5f9; --card: #ffffff; --border: #cbd5e1; --green: #16a34a; --red: #dc2626; --text: #0f172a; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); padding: 12px; margin: 0; line-height: 1.6; font-size: 17px; }
+    .container { max-width: 900px; margin: 0 auto; background: var(--card); border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .hidden { display: none !important; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 17px; color: #334155; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 10px; font-size: 17px; }
+    input[type="text"]:focus { outline: none; border-color: var(--primary); }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 18px 24px; font-size: 18px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
+    .btn:disabled { background: #94a3b8; }
+    .btn-green { background: var(--green); margin-top: 16px; }
+    .question-box { border: 2px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; background: #fff; }
+    .question-text { font-size: 18px; font-weight: 600; margin-top: 0; margin-bottom: 16px; color: var(--text); }
+    .part-title { color: var(--primary); border-bottom: 3px solid var(--primary); padding-bottom: 8px; margin-top: 32px; margin-bottom: 20px; font-size: 20px; font-weight: bold; }
+    .opt-label { display: block; padding: 16px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; font-size: 17px; }
+    .opt-label input[type="radio"] { transform: scale(1.5); margin-right: 16px; }
+    .tf-item { display: flex; flex-direction: column; padding: 16px 0; border-bottom: 1px dashed var(--border); }
+    .tf-item-text { font-size: 17px; margin-bottom: 12px; font-weight: 500; }
+    .tf-options { display: flex; gap: 16px; }
+    .tf-options label { flex: 1; padding: 14px; text-align: center; border: 2px solid var(--border); border-radius: 10px; background: #f8fafc; margin: 0; }
+    .tf-options input[type="radio"] { transform: scale(1.5); margin-right: 10px; }
+    .explanation { margin-top: 16px; padding: 16px; background: #eff6ff; border-left: 5px solid var(--secondary); font-size: 16px; border-radius: 0 8px 8px 0; }
+    .badge { display: inline-block; padding: 6px 12px; border-radius: 12px; font-weight: bold; font-size: 14px; margin-bottom: 12px; }
+    .badge-pass { background: #dcfce7; color: var(--green); }
+    .badge-fail { background: #fee2e2; color: var(--red); }
+    .alert-box { background: #fffbeb; border: 2px solid #f59e0b; color: #b45309; padding: 16px; border-radius: 12px; margin-bottom: 24px; font-weight: bold; text-align: center; font-size: 16px; }
+    .teacher-box { background: #f0fdf4; border: 2px dashed var(--green); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+    .exam-header-sticky { position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); z-index: 99; border-bottom: 2px solid var(--border); padding: 16px 0; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .timer-badge { background: var(--red); color: #fff; padding: 8px 20px; border-radius: 24px; font-size: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div id="screen-info">
+    <h2 style="color:var(--primary); margin-top:0; text-align:center; font-size: 26px;">Khảo Sát Kiến Thức Hóa Học</h2>
+    
+    <div id="teacherControlPanel" class="teacher-box hidden">
+      <h3 style="margin-top:0; color:var(--green);">👨‍🏫 Quản Trị Tạo Link (Lớp 12G1)</h3>
+      <div class="form-group"><label>Thời gian (Phút):</label><input type="number" id="gvSetMinutes" value="15"></div>
+      <div class="form-group"><label>Mã bảo mật phòng thi:</label><input type="text" id="gvSecretInput" placeholder="Ví dụ: 12G1_KT"></div>
+      <button type="button" class="btn btn-green" onclick="generateStudentLink()">Tạo Link Thi Mã Hóa</button>
+      <div id="generatedLinkBox" style="margin-top:16px; font-weight:bold; color:var(--primary); word-break: break-all; display:none; background: #e0f2fe; padding: 12px; border-radius: 8px;"></div>
+    </div>
+
+    <div class="alert-box">⚠️ Chỉ được làm bài khi nhập đúng mã bảo mật từ Giáo viên.</div>
+
+    <div class="form-group"><label>Họ và tên học sinh:</label><input type="text" id="stuName" placeholder="Nhập đầy đủ họ tên..."></div>
+    <div class="form-group"><label>Lớp / Số thiết bị:</label><input type="text" id="stuClass" placeholder="Ví dụ: 12G1 - Tablet 05"></div>
+    <div class="form-group"><label style="color: var(--red);">Mã mở phòng thi:</label><input type="text" id="roomPasscode" placeholder="Nhập mã do GV cung cấp..." oninput="checkPasscode()" style="border-color: var(--red);"></div>
+    <div style="margin-bottom: 24px; font-weight: 600; color: #475569; font-size: 16px; text-align: center;">Thời lượng: <span id="currentDurationDisplay" style="color:var(--primary); font-size:18px;">-- phút</span></div>
+
+    <button class="btn" id="btnStartTest" onclick="startTest()" disabled>Vui Lòng Nhập Mã Để Vào Thi</button>
+  </div>
+
+  <div id="screen-exam" class="hidden">
+    <div class="exam-header-sticky">
+      <div style="flex: 1;"><b id="examHeader" style="color:var(--primary); font-size:18px; display:block;"></b><span id="cheatWarning" style="color:var(--red); font-weight:bold; font-size:14px; display: none; margin-top: 4px;"></span></div>
+      <div class="timer-badge" id="timerBadge">00:00</div>
+    </div>
+    <div id="examContainer"></div>
+    <button class="btn btn-green" id="btnSubmitExam" onclick="submitExam(false)" style="margin-top: 30px; font-size: 20px; padding: 20px;">Xác Nhận Nộp Bài</button>
+  </div>
+
+  <div id="screen-result" class="hidden">
+    <h2 style="color:var(--green); margin-top:0; text-align:center; font-size: 28px;">Đã Nộp Bài Thành Công!</h2>
+    <div style="background: #f8fafc; padding: 24px; border: 2px solid var(--border); border-radius: 16px; margin-bottom: 24px; text-align: center;">
+      <p style="margin: 0 0 12px 0; font-size: 18px;">Thí sinh: <b id="resName"></b> | Lớp: <span id="resClass"></span></p>
+      <p style="margin: 0; font-size: 24px;">Điểm số: <b id="resScore" style="color:var(--red); font-size: 42px;"></b></p>
+      <p id="resCheat" style="color:var(--red); font-weight:bold; font-size:16px; margin-top: 12px;"></p>
+    </div>
+    <div id="syncStatus" style="font-weight:bold; font-size: 18px; margin-bottom: 24px; color: var(--secondary); text-align: center; padding: 12px; background: #eff6ff; border-radius: 8px;">Đang đồng bộ kết quả...</div>
+    <h3 style="border-top: 3px solid var(--border); padding-top: 20px; color: var(--primary);">Xem Lại Chi Tiết</h3>
+    <div id="reviewContainer"></div>
+  </div>
+</div>
+
+<script>
+  // DÁN LINK APPS SCRIPT CỦA THẦY VÀO ĐÂY
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHn2-JkrxzqYu8SZ_1y2lDMSXZU6T26EIPaguwzcCmBl6KcyLV2QC-33XXYkjIUidc/exec";
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  let durationMinutes = parseInt(urlParams.get('time'), 10) || 15;
+  const encodedKeyFromUrl = urlParams.get('key'); 
+  let decodedTargetPasscode = "HOA12"; 
+  if (encodedKeyFromUrl) { try { decodedTargetPasscode = decodeURIComponent(atob(encodedKeyFromUrl)); } catch(e) { decodedTargetPasscode = "HOA12"; } }
+
+  let timerInterval = null;
+  let secondsLeft = 0;
+  let isExamActive = false;
+  let cheatCount = 0;
+
+  window.addEventListener("DOMContentLoaded", () => {
+    if (urlParams.get('gv') === '1') document.getElementById('teacherControlPanel').classList.remove('hidden');
+    document.getElementById('currentDurationDisplay').innerText = durationMinutes + " phút";
+  });
+
+  function generateStudentLink() {
+    const mins = parseInt(document.getElementById('gvSetMinutes').value, 10) || 15;
+    const pass = document.getElementById('gvSecretInput').value.trim();
+    if (!pass) { alert("Vui lòng nhập mã bảo mật!"); return; }
+    const encodedPass = btoa(encodeURIComponent(pass.toUpperCase()));
+    const studentUrl = `${window.location.origin + window.location.pathname}?time=${mins}&key=${encodedPass}`;
+    document.getElementById('generatedLinkBox').style.display = "block";
+    document.getElementById('generatedLinkBox').innerHTML = `Gửi link này cho HS:<br><a href="${studentUrl}" target="_blank" style="color:var(--green); word-break: break-all;">${studentUrl}</a>`;
+  }
+
+  function checkPasscode() {
+    const inputCode = document.getElementById('roomPasscode').value.trim().toUpperCase();
+    const btn = document.getElementById('btnStartTest');
+    if (inputCode === decodedTargetPasscode.toUpperCase()) {
+      btn.disabled = false; btn.innerText = "Bắt Đầu Làm Bài Ngay"; btn.style.background = "var(--green)";
+    } else {
+      btn.disabled = true; btn.innerText = "Vui Lòng Nhập Mã Để Vào Thi"; btn.style.background = "#94a3b8";
+    }
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && isExamActive) {
+      cheatCount++;
+      document.getElementById('cheatWarning').style.display = "block";
+      document.getElementById('cheatWarning').innerText = `⚠️ Vi phạm thoát màn hình: ${cheatCount} lần`;
+    }
+  });
+
+  function shuffle(arr) {
+    let a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  
+  let studentExam = [];
+  let studentInfo = {};
+const bank_fib = [
+    { id: 1, type: "fib", text: "Ester được tạo thành khi thay thế nhóm -OH ở nhóm carboxyl của carboxylic acid bằng nhóm ___", correct: "-OR'", explain: "Định nghĩa ester theo SGK." },
+    { id: 2, type: "fib", text: "Chất có công thức HCOOCH3 có tên gọi là methyl ___", correct: "formate", explain: "Gốc HCOO- là formate." },
+    { id: 3, type: "fib", text: "Phản ứng thủy phân ester trong môi trường kiềm còn được gọi là phản ứng ___", correct: "xà phòng hóa", explain: "Phản ứng một chiều sinh ra muối và alcohol." },
+    { id: 4, type: "fib", text: "Lipid bao gồm chất béo, sáp, steroid và ___", correct: "phospholipid", explain: "Phân loại lipid." },
+    { id: 5, type: "fib", text: "Chất béo là triester của glycerol với acid ___", correct: "béo", explain: "Định nghĩa chất béo." },
+    { id: 6, type: "fib", text: "Ở điều kiện thường, triolein tồn tại ở trạng thái ___", correct: "lỏng", explain: "Chất béo không no ở trạng thái lỏng." },
+    { id: 7, type: "fib", text: "Để chuyển hóa chất béo lỏng thành chất béo rắn, người ta thực hiện phản ứng ___ hóa.", correct: "hydrogen", explain: "Phản ứng cộng H2 vào gốc hydrocacbon không no." },
+    { id: 8, type: "fib", text: "Ester isoamyl acetate có mùi chuối ___", correct: "chín", explain: "Tính chất vật lý đặc trưng." },
+    { id: 9, type: "fib", text: "Chất béo có công thức (C17H35COO)3C3H5 có tên gọi là ___", correct: "tristearin", explain: "Muối của stearic acid." },
+    { id: 10, type: "fib", text: "Phản ứng este hóa giữa carboxylic acid và alcohol là phản ứng ___ chiều.", correct: "thuận nghịch", explain: "Cần xúc tác H2SO4 đặc, đun nóng." },
+    { id: 11, type: "fib", text: "Ester benzyl acetate có mùi hoa ___", correct: "nhài", explain: "Thường dùng trong công nghiệp mỹ phẩm." },
+    { id: 12, type: "fib", text: "Xà phòng thường là hỗn hợp muối sodium hoặc potassium của acid ___", correct: "béo", explain: "Định nghĩa xà phòng." },
+    { id: 13, type: "fib", text: "Chất giặt rửa tổng hợp không bị giảm tác dụng giặt rửa trong nước ___", correct: "cứng", explain: "Ưu điểm so với xà phòng." },
+    { id: 14, type: "fib", text: "Lipid không hòa tan trong nước nhưng tan nhiều trong dung môi ___", correct: "hữu cơ", explain: "Tính chất vật lý của lipid." },
+    { id: 15, type: "fib", text: "Gốc hydrocarbon C17H33- trong phân tử triolein có chứa ___ liên kết đôi C=C.", correct: "1", explain: "Gốc oleic acid." },
+    { id: 16, type: "fib", text: "Các ester có phân tử khối thấp thường là chất lỏng, dễ ___", correct: "bay hơi", explain: "Đặc điểm vật lý của ester." },
+    { id: 17, type: "fib", text: "Khi đun nóng chất béo với dung dịch NaOH, sản phẩm luôn có chứa ___", correct: "glycerol", explain: "Sản phẩm thủy phân chất béo." },
+    { id: 18, type: "fib", text: "Acid béo là các carboxylic acid đơn chức, mạch ___", correct: "carbon dài", explain: "Thường có số C chẵn từ 12-24, không phân nhánh." }
+  ];
+
+  const bank_tf = [
+    { id: 19, type: "tf", text: "Cho các phát biểu về phản ứng thủy phân ester:", items: [ { label: "a) Thủy phân trong môi trường acid là phản ứng thuận nghịch.", correct: "Đ" }, { label: "b) Thủy phân trong môi trường kiềm luôn sinh ra alcohol.", correct: "S" }, { label: "c) Phản ứng xà phòng hóa luôn cần đun nóng.", correct: "Đ" }, { label: "d) Thủy phân vinyl acetate thu được aldehyde.", correct: "Đ" } ], explain: "Thủy phân este của phenol hoặc vinyl không sinh ra alcohol." },
+    { id: 20, type: "tf", text: "Về tính chất vật lý của ester:", items: [ { label: "a) Các ester đều tan tốt trong nước.", correct: "S" }, { label: "b) Nhiệt độ sôi của ester thấp hơn alcohol có cùng phân tử khối.", correct: "Đ" }, { label: "c) Đa số ester nhẹ hơn nước.", correct: "Đ" }, { label: "d) Ethyl butyrate có mùi dứa chín.", correct: "Đ" } ], explain: "Ester không tạo được liên kết hydro với nước nên rất ít tan." },
+    { id: 21, type: "tf", text: "Về chất béo (Lipid):", items: [ { label: "a) Chất béo nhẹ hơn nước và không tan trong nước.", correct: "Đ" }, { label: "b) Dầu ăn và mỡ bôi trơn máy có cùng bản chất hóa học.", correct: "S" }, { label: "c) Triolein có phản ứng cộng H2 (Ni, t°).", correct: "Đ" }, { label: "d) Thủy phân chất béo luôn thu được glycerol.", correct: "Đ" } ], explain: "Mỡ bôi trơn máy là hydrocarbon, dầu ăn là chất béo." },
+    { id: 22, type: "tf", text: "Ứng dụng của ester và lipid:", items: [ { label: "a) Ester được dùng làm dung môi pha sơn.", correct: "Đ" }, { label: "b) Chất béo là thức ăn cung cấp nhiều năng lượng cho cơ thể.", correct: "Đ" }, { label: "c) Một số ester dùng để sản xuất chất dẻo, thủy tinh hữu cơ.", correct: "Đ" }, { label: "d) Dầu mỡ sau khi rán không thể tái chế thành nhiên liệu sinh học.", correct: "S" } ], explain: "Dầu ăn phế thải có thể dùng để sản xuất biodiesel." },
+    { id: 23, type: "tf", text: "Về xà phòng và chất giặt rửa tổng hợp:", items: [ { label: "a) Xà phòng là muối sodium hoặc potassium của acid béo.", correct: "Đ" }, { label: "b) Chất giặt rửa tổng hợp được tổng hợp từ dầu mỏ.", correct: "Đ" }, { label: "c) Phân tử xà phòng có đầu kị nước và đuôi ưa nước.", correct: "S" }, { label: "d) Xà phòng bị mất tác dụng giặt rửa trong nước cứng.", correct: "Đ" } ], explain: "Phân tử có đầu ưa nước (phân cực) và đuôi kị nước (gốc hydrocarbon)." },
+    { id: 24, type: "tf", text: "Xét cấu tạo của ester:", items: [ { label: "a) Nhóm chức ester là -COO-.", correct: "Đ" }, { label: "b) Ester no, đơn chức, mạch hở có công thức chung là CnH2nO2 (n>=2).", correct: "Đ" }, { label: "c) Ethyl acetate có đồng phân là acetic acid.", correct: "S" }, { label: "d) Phenyl acetate được cấu tạo từ phenol và acetic acid.", correct: "Đ" } ], explain: "Ethyl acetate (C4) không đồng phân với acetic acid (C2)." },
+    { id: 25, type: "tf", text: "Nhận định về phản ứng este hóa:", items: [ { label: "a) Xảy ra giữa carboxylic acid và alcohol.", correct: "Đ" }, { label: "b) H2SO4 đặc vừa làm xúc tác, vừa hút nước làm tăng hiệu suất.", correct: "Đ" }, { label: "c) Phản ứng este hóa là phản ứng một chiều.", correct: "S" }, { label: "d) Trong phản ứng, nhóm -OH bị đứt ra từ phân tử alcohol.", correct: "S" } ], explain: "Phản ứng thuận nghịch. Nhóm -OH đứt ra từ carboxylic acid." },
+    { id: 26, type: "tf", text: "Phân loại chất béo:", items: [ { label: "a) Mỡ động vật chứa chủ yếu các gốc acid béo no.", correct: "Đ" }, { label: "b) Dầu thực vật chứa chủ yếu các gốc acid béo không no.", correct: "Đ" }, { label: "c) Tristearin là chất béo lỏng ở điều kiện thường.", correct: "S" }, { label: "d) Chất béo lỏng dễ bị oxi hóa bởi oxi không khí gây ôi thiu.", correct: "Đ" } ], explain: "Tristearin là chất béo no, ở trạng thái rắn." },
+    { id: 27, type: "tf", text: "Tính chất hóa học của chất béo:", items: [ { label: "a) Bị thủy phân trong môi trường acid.", correct: "Đ" }, { label: "b) Tác dụng với dung dịch kiềm khi đun nóng.", correct: "Đ" }, { label: "c) Triolein làm mất màu dung dịch Br2.", correct: "Đ" }, { label: "d) Chất béo có thể hòa tan Cu(OH)2 tạo dung dịch xanh lam.", correct: "S" } ], explain: "Chất béo không có nhiều nhóm -OH kề nhau, không hòa tan Cu(OH)2." },
+    { id: 28, type: "tf", text: "So sánh cấu tạo ester:", items: [ { label: "a) Methyl formate tham gia phản ứng tráng bạc.", correct: "Đ" }, { label: "b) Vinyl acetate có đồng phân hình học.", correct: "S" }, { label: "c) Ethyl methacrylate có liên kết đôi C=C.", correct: "Đ" }, { label: "d) Benzyl formate là este của phenol.", correct: "S" } ], explain: "Benzyl formate là este của alcohol (benzyl alcohol)." },
+    { id: 29, type: "tf", text: "Cơ chế giặt rửa:", items: [ { label: "a) Gốc kị nước của xà phòng xâm nhập vào vết bẩn (dầu mỡ).", correct: "Đ" }, { label: "b) Nhóm ưa nước sẽ thò ra ngoài liên kết với nước.", correct: "Đ" }, { label: "c) Chất giặt rửa tổng hợp tạo kết tủa với ion Ca2+, Mg2+.", correct: "S" }, { label: "d) Xà phòng có ưu điểm là dễ bị phân hủy sinh học.", correct: "Đ" } ], explain: "Chất giặt rửa tổng hợp KHÔNG tạo kết tủa với nước cứng." },
+    { id: 30, type: "tf", text: "Đồng phân và danh pháp:", items: [ { label: "a) C2H4O2 có 1 đồng phân este.", correct: "Đ" }, { label: "b) C3H6O2 có 3 đồng phân este.", correct: "S" }, { label: "c) CH2=CH-COOCH3 có tên là methyl acrylate.", correct: "Đ" }, { label: "d) Propyl formate và ethyl acetate là đồng phân của nhau.", correct: "Đ" } ], explain: "C3H6O2 chỉ có 2 đồng phân ester (HCOOC2H5, CH3COOCH3)." }
+  ];
+
+  const bank_mcq = [
+    { id: 31, type: "mcq", text: "Công thức chung của ester no, đơn chức, mạch hở là:", options: ["CnH2nO2 (n >= 2)", "CnH2nO (n >= 2)", "CnH2n-2O2 (n >= 3)", "CnH2n+2O2 (n >= 2)"], correct: "CnH2nO2 (n >= 2)", explain: "Theo định nghĩa SGK." },
+    { id: 32, type: "mcq", text: "Chất nào sau đây có nhiệt độ sôi thấp nhất?", options: ["Methyl formate", "Acetic acid", "Ethyl alcohol", "Propyl alcohol"], correct: "Methyl formate", explain: "Ester không có liên kết hydrogen liên phân tử." },
+    { id: 33, type: "mcq", text: "Ester CH3COOCH2CH3 có tên gọi là:", options: ["Ethyl acetate", "Methyl propionate", "Propyl acetate", "Ethyl formate"], correct: "Ethyl acetate", explain: "Gốc acid là acetate, gốc alcohol là ethyl." },
+    { id: 34, type: "mcq", text: "Vinyl acetate có công thức cấu tạo là:", options: ["CH3COOCH=CH2", "CH2=CHCOOCH3", "HCOOCH=CH2", "CH3COOC6H5"], correct: "CH3COOCH=CH2", explain: "Gốc vinyl là -CH=CH2." },
+    { id: 35, type: "mcq", text: "Khi đun nóng chất béo trong dung dịch NaOH, thu được muối của acid béo và:", options: ["Glycerol", "Ethyl alcohol", "Ethylene glycol", "Phenol"], correct: "Glycerol", explain: "Chất béo là triester của glycerol." },
+    { id: 36, type: "mcq", text: "Triolein có công thức hóa học là:", options: ["(C17H33COO)3C3H5", "(C17H35COO)3C3H5", "(C15H31COO)3C3H5", "(C17H31COO)3C3H5"], correct: "(C17H33COO)3C3H5", explain: "Oleic acid là C17H33COOH." },
+    { id: 37, type: "mcq", text: "Để biến dầu ăn thành mỡ rắn (bơ nhân tạo), ta thực hiện phản ứng:", options: ["Cộng H2", "Xà phòng hóa", "Thủy phân", "Cộng Br2"], correct: "Cộng H2", explain: "Biến chất béo không no thành no." },
+    { id: 38, type: "mcq", text: "Mùi chuối chín là của este nào sau đây?", options: ["Isoamyl acetate", "Benzyl acetate", "Ethyl butyrate", "Methyl salicylate"], correct: "Isoamyl acetate", explain: "Tính chất vật lý đặc trưng." },
+    { id: 39, type: "mcq", text: "Số lượng đồng phân este có cùng công thức phân tử C3H6O2 là:", options: ["2", "3", "4", "1"], correct: "2", explain: "HCOOC2H5 và CH3COOCH3." },
+    { id: 40, type: "mcq", text: "Chất nào sau đây vừa tham gia phản ứng tráng bạc, vừa bị thủy phân?", options: ["Methyl formate", "Acetic acid", "Glucose", "Saccharose"], correct: "Methyl formate", explain: "Có gốc HCOO- và là ester." },
+    { id: 41, type: "mcq", text: "Xà phòng hóa tristearin thu được muối có công thức là:", options: ["C17H35COONa", "C17H33COONa", "C15H31COONa", "CH3COONa"], correct: "C17H35COONa", explain: "Tristearin là (C17H35COO)3C3H5." },
+    { id: 42, type: "mcq", text: "Thủy phân phenyl acetate trong dung dịch NaOH dư sinh ra hỗn hợp sản phẩm hữu cơ gồm:", options: ["CH3COONa và C6H5ONa", "CH3COONa và C6H5OH", "HCOONa và C6H5ONa", "C6H5COONa và CH3OH"], correct: "CH3COONa và C6H5ONa", explain: "Ester của phenol sinh ra 2 muối." },
+    { id: 43, type: "mcq", text: "Chất không phải là acid béo là:", options: ["Acetic acid", "Stearic acid", "Palmitic acid", "Oleic acid"], correct: "Acetic acid", explain: "Acid béo phải có mạch C dài." },
+    { id: 44, type: "mcq", text: "Phản ứng thủy phân ester trong môi trường acid là:", options: ["Phản ứng thuận nghịch", "Phản ứng một chiều", "Phản ứng oxi hóa khử", "Phản ứng thế"], correct: "Phản ứng thuận nghịch", explain: "Đặc điểm cơ chế phản ứng." },
+    { id: 45, type: "mcq", text: "Hợp chất X có cấu tạo CH2=CH-COOCH3. Tên gọi của X là:", options: ["Methyl acrylate", "Methyl acetate", "Vinyl acetate", "Ethyl methacrylate"], correct: "Methyl acrylate", explain: "Gốc acid là acrylate." },
+    { id: 46, type: "mcq", text: "Thành phần chính của xà phòng là:", options: ["Muối sodium của acid béo", "Muối sodium của sulfonic acid", "Glycerol", "Acid béo tự do"], correct: "Muối sodium của acid béo", explain: "Khái niệm xà phòng." },
+    { id: 47, type: "mcq", text: "Chất béo ở trạng thái lỏng ở điều kiện thường do phân tử có chứa nhiều:", options: ["Gốc acid béo không no", "Gốc acid béo no", "Gốc glycerol", "Gốc carboxyl"], correct: "Gốc acid béo không no", explain: "Mạch C không no làm giảm nhiệt độ nóng chảy." },
+    { id: 48, type: "mcq", text: "Dầu mỡ động thực vật để lâu ngày bị ôi thiu là do:", options: ["Liên kết đôi C=C bị oxi hóa", "Bị thủy phân", "Bị vi khuẩn lên men", "Bị phân hủy nhiệt"], correct: "Liên kết đôi C=C bị oxi hóa", explain: "Oxi hóa chậm bởi oxi không khí tạo peroxide có mùi khó chịu." },
+    { id: 49, type: "mcq", text: "Chất giặt rửa tổng hợp ưu việt hơn xà phòng ở điểm:", options: ["Dùng được trong nước cứng", "Dễ phân hủy sinh học hơn", "Không gây hại da tay", "Làm từ nguyên liệu thiên nhiên"], correct: "Dùng được trong nước cứng", explain: "Không tạo kết tủa với Ca2+, Mg2+." },
+    { id: 50, type: "mcq", text: "Ester nào sau đây được dùng để sản xuất thủy tinh hữu cơ?", options: ["Methyl methacrylate", "Vinyl acetate", "Ethyl benzoate", "Benzyl acetate"], correct: "Methyl methacrylate", explain: "Poly(methyl methacrylate) - PMMA." },
+    { id: 51, type: "mcq", text: "Khối lượng phân tử của tristearin là:", options: ["890", "884", "806", "895"], correct: "890", explain: "(17*12 + 35 + 44)*3 + 41 = 890." },
+    { id: 52, type: "mcq", text: "Khối lượng phân tử của triolein là:", options: ["884", "890", "806", "878"], correct: "884", explain: "Kém tristearin 6 nguyên tử H." },
+    { id: 53, type: "mcq", text: "Chất nào sau đây không thể thủy phân?", options: ["Glycerol", "Triolein", "Ethyl acetate", "Tristearin"], correct: "Glycerol", explain: "Là alcohol đơn giản." },
+    { id: 54, type: "mcq", text: "Sản phẩm của phản ứng este hóa giữa HCOOH và C2H5OH là:", options: ["HCOOC2H5", "CH3COOC2H5", "HCOOCH3", "C2H5COOH"], correct: "HCOOC2H5", explain: "Ethyl formate." },
+    { id: 55, type: "mcq", text: "Dung dịch nào sau đây làm sạch được lớp mỡ bám dính trên chén bát hiệu quả nhất?", options: ["Nước rửa chén", "Nước muối", "Giấm ăn", "Nước chanh"], correct: "Nước rửa chén", explain: "Chứa chất giặt rửa." },
+    { id: 56, type: "mcq", text: "Đồng phân của ethyl acetate (CH3COOC2H5) là:", options: ["Propyl formate", "Methyl propionate", "Cả 2 đều đúng", "Không chất nào"], correct: "Cả 2 đều đúng", explain: "Cùng công thức C4H8O2." },
+    { id: 57, type: "mcq", text: "Ester X có công thức C4H8O2, thủy phân X thu được alcohol bậc 1. Số cấu tạo của X là:", options: ["2", "3", "4", "1"], correct: "2", explain: "CH3COOCH2CH3, HCOOCH2CH2CH3, C2H5COOCH3. (Isopropyl formate sinh ra alcohol bậc 2)." },
+    { id: 58, type: "mcq", text: "Ester tạo từ phenol và acid acetic là:", options: ["Phenyl acetate", "Benzyl acetate", "Methyl phenolate", "Acetic phenolate"], correct: "Phenyl acetate", explain: "CH3COOC6H5." },
+    { id: 59, type: "mcq", text: "Ester nào sau đây khi thủy phân tạo ra aldehyde?", options: ["Vinyl acetate", "Ethyl acetate", "Methyl acetate", "Phenyl acetate"], correct: "Vinyl acetate", explain: "Alcohol sinh ra không bền, chuyển vị thành CH3CHO." },
+    { id: 60, type: "mcq", text: "Chất nào sau đây có khả năng làm mất màu dung dịch Br2?", options: ["Triolein", "Tristearin", "Ethyl acetate", "Tripalmitin"], correct: "Triolein", explain: "Chứa liên kết C=C." },
+    { id: 61, type: "mcq", text: "Chỉ số xà phòng hóa là:", options: ["Số mg KOH dùng xà phòng hóa 1 gam chất béo", "Số gam KOH dùng xà phòng hóa 1 gam chất béo", "Số mg NaOH dùng xà phòng hóa 1 gam chất béo", "Số gam NaOH dùng xà phòng hóa 1 mol chất béo"], correct: "Số mg KOH dùng xà phòng hóa 1 gam chất béo", explain: "Định nghĩa chuẩn." },
+    { id: 62, type: "mcq", text: "Lipid sinh học phổ biến nhất trong tế bào chất là:", options: ["Phospholipid", "Steroid", "Sáp", "Triglyceride"], correct: "Phospholipid", explain: "Cấu tạo màng tế bào." },
+    { id: 63, type: "mcq", text: "Tripalmitin có công thức hóa học là:", options: ["(C15H31COO)3C3H5", "(C17H35COO)3C3H5", "(C17H33COO)3C3H5", "(C15H29COO)3C3H5"], correct: "(C15H31COO)3C3H5", explain: "Palmitic acid là C15H31COOH." },
+    { id: 64, type: "mcq", text: "Chất X có công thức phân tử C2H4O2, tác dụng được với NaOH nhưng không tác dụng Na. X là:", options: ["Methyl formate", "Acetic acid", "Acetaldehyde", "Ethyl alcohol"], correct: "Methyl formate", explain: "HCOOCH3 là ester." },
+    { id: 65, type: "mcq", text: "Dung dịch chất nào sau đây có phản ứng màu với quỳ tím?", options: ["Không chất nào", "Ethyl acetate", "Methyl formate", "Tristearin"], correct: "Không chất nào", explain: "Ester và Lipid trung tính." },
+    { id: 66, type: "mcq", text: "Cho ester X có tên propyl acetate. Công thức của X là:", options: ["CH3COOCH2CH2CH3", "CH3COOCH(CH3)2", "C2H5COOCH2CH3", "HCOOCH2CH2CH2CH3"], correct: "CH3COOCH2CH2CH3", explain: "Gốc propyl là -CH2CH2CH3." }
+  ];
+  function startTimer() {
+    secondsLeft = durationMinutes * 60;
+    const badge = document.getElementById('timerBadge');
+    timerInterval = setInterval(() => {
+      let m = Math.floor(secondsLeft / 60); let s = secondsLeft % 60;
+      badge.innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+      if (secondsLeft <= 60) badge.style.background = "#b91c1c";
+      if (secondsLeft <= 0) { clearInterval(timerInterval); alert("Đã hết thời gian làm bài!"); submitExam(true); }
+      secondsLeft--;
+    }, 1000);
+  }
+
+  function startTest() {
+    const name = document.getElementById('stuName').value.trim();
+    const sClass = document.getElementById('stuClass').value.trim();
+    if (!name || !sClass) { alert("Vui lòng điền họ tên và thông tin thiết bị!"); return; }
+
+    studentInfo = { name, sClass };
+    document.getElementById('examHeader').innerText = `Học sinh: ${name} (${sClass})`;
+    isExamActive = true; cheatCount = 0; document.getElementById('cheatWarning').style.display = "none";
+
+    const picked_fib = shuffle(bank_fib).slice(0, 6);
+    const picked_tf = shuffle(bank_tf).slice(0, 4);
+    const picked_mcq = shuffle(bank_mcq).slice(0, 10).map(q => { let qCopy = {...q}; qCopy.options = shuffle(q.options); return qCopy; });
+
+    studentExam = [
+      { partIndex: 1, partTitle: "PHẦN I: TRẢ LỜI NGẮN / ĐIỀN KHUYẾT", list: picked_fib },
+      { partIndex: 2, partTitle: "PHẦN II: TRẮC NGHIỆM ĐÚNG/SAI", list: picked_tf },
+      { partIndex: 3, partTitle: "PHẦN III: TRẮC NGHIỆM NHIỀU LỰA CHỌN", list: picked_mcq }
+    ];
+
+    const box = document.getElementById('examContainer');
+    box.innerHTML = "";
+
+    studentExam.forEach(part => {
+      if (part.list.length === 0) return;
+      const pTitle = document.createElement('h3'); pTitle.className = "part-title"; pTitle.innerText = part.partTitle; box.appendChild(pTitle);
+      let questionCounter = 1;
+
+      part.list.forEach(q => {
+        const qDiv = document.createElement('div'); qDiv.className = "question-box";
+        let html = `<p class="question-text">Câu ${questionCounter}: ${q.text}</p>`;
+        
+        if (q.type === 'fib') { 
+          html += `<input type="text" id="ans_${q.id}" placeholder="Nhập câu trả lời...">`; 
+        } else if (q.type === 'mcq') { 
+          q.options.forEach(opt => { html += `<label class="opt-label"><input type="radio" name="q_${q.id}" value="${opt}"> ${opt}</label>`; }); 
+        } else if (q.type === 'tf') { 
+          q.items.forEach((item, iIdx) => { html += `<div class="tf-item"><div class="tf-item-text">${item.label}</div><div class="tf-options"><label><input type="radio" name="tf_${q.id}_${iIdx}" value="Đ"> Đúng</label><label><input type="radio" name="tf_${q.id}_${iIdx}" value="S"> Sai</label></div></div>`; }); 
+        }
+        
+        qDiv.innerHTML = html; box.appendChild(qDiv); questionCounter++;
+      });
+    });
+
+    document.getElementById('screen-info').classList.add('hidden');
+    document.getElementById('screen-exam').classList.remove('hidden');
+    startTimer();
+    window.scrollTo(0, 0);
+  }
+
+  function submitExam(isAuto = false) {
+    if (!isAuto && !confirm("Bạn có chắc chắn muốn nộp bài? Hệ thống sẽ ghi nhận điểm ngay lập tức.")) return;
+    clearInterval(timerInterval); isExamActive = false; document.getElementById('btnSubmitExam').disabled = true;
+
+    let totalQuestions = 0; let correctCount = 0; let reviewData = [];
+
+    studentExam.forEach(part => {
+      let count = 1;
+      part.list.forEach(q => {
+        totalQuestions++;
+        if (q.type === 'fib') {
+          const userAns = document.getElementById(`ans_${q.id}`) ? document.getElementById(`ans_${q.id}`).value.trim() : "";
+          const isRight = (userAns.toLowerCase() === q.correct.toLowerCase());
+          if (isRight) correctCount++; reviewData.push({ pIdx: part.partIndex, num: count, text: q.text, userAns: userAns || "(Trống)", correct: q.correct, isRight: isRight, explain: q.explain });
+        } else if (q.type === 'mcq') {
+          const sel = document.querySelector(`input[name="q_${q.id}"]:checked`);
+          const userAns = sel ? sel.value : "(Trống)";
+          const isRight = (userAns === q.correct);
+          if (isRight) correctCount++; reviewData.push({ pIdx: part.partIndex, num: count, text: q.text, userAns: userAns, correct: q.correct, isRight: isRight, explain: q.explain });
+        } else if (q.type === 'tf') {
+          let tfRight = 0; let details = [];
+          q.items.forEach((item, iIdx) => {
+            const sel = document.querySelector(`input[name="tf_${q.id}_${iIdx}"]:checked`);
+            const userVal = sel ? sel.value : "-";
+            if (userVal === item.correct) tfRight++; details.push(`${item.label} (Chọn: ${userVal} - Đ/A: ${item.correct})`);
+          });
+          const isFull = (tfRight === q.items.length);
+          if (isFull) correctCount++; reviewData.push({ pIdx: part.partIndex, num: count, text: q.text, userAns: details.join("<br>"), correct: "Tất cả ý đúng", isRight: isFull, explain: q.explain });
+        }
+        count++;
+      });
+    });
+
+    const score = ((correctCount / totalQuestions) * 10).toFixed(1);
+    document.getElementById('resName').innerText = studentInfo.name; document.getElementById('resClass').innerText = studentInfo.sClass; document.getElementById('resScore').innerText = `${score} / 10`;
+
+    const rBox = document.getElementById('reviewContainer'); rBox.innerHTML = "";
+    let detailText = `BÀI LÀM CHI TIẾT\nHọ tên: ${studentInfo.name} | Lớp: ${studentInfo.sClass}\nĐiểm: ${score}/10 | Mã phòng: ${decodedTargetPasscode}\n\n`;
+reviewData.forEach(r => {
+      const b = document.createElement('div'); b.className = "question-box";
+      b.innerHTML = `<span class="badge ${r.isRight ? 'badge-pass' : 'badge-fail'}">${r.isRight ? '✓ ĐÚNG' : '✗ SAI'}</span>
+        <p class="question-text">Phần ${r.pIdx} - Câu ${r.num}: ${r.text}</p><p><b>Bài làm:</b><br>${r.userAns}</p>
+        ${!r.isRight ? `<p style="color:var(--green)"><b>Đáp án:</b> ${r.correct}</p>` : ''}<div class="explanation"><b>Giải thích:</b> ${r.explain}</div>`;
+      rBox.appendChild(b);
+      
+      // ĐÂY LÀ DÒNG ĐƯỢC RÚT GỌN LẠI DÀNH CHO GOOGLE DRIVE
+      detailText += `P${r.pIdx} - C${r.num}:\n> Chọn: ${r.userAns.replace(/<br>/g, ', ')} -> ${r.isRight ? 'ĐÚNG' : 'SAI'}\n\n`;
+    });
+   
+
+    document.getElementById('screen-exam').classList.add('hidden'); document.getElementById('screen-result').classList.remove('hidden');
+    window.scrollTo(0, 0);
+
+    if (SCRIPT_URL.includes("http")) {
+      document.getElementById('syncStatus').innerHTML = `Đang đồng bộ kết quả về hệ thống...`;
+      fetch(SCRIPT_URL, { 
+        method: "POST", 
+        body: JSON.stringify({
+          ThoiGian: new Date().toLocaleString("vi-VN"), HoTen: studentInfo.name, Lop_SoMay: studentInfo.sClass, MaPhong: decodedTargetPasscode,
+          DiemSo: score, SoCauDung: `${correctCount}/${totalQuestions}`, ChiTietBaiLam: detailText, ViPham: `${cheatCount} lần thoát màn hình`
+        })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if(res.status === 'success') document.getElementById('syncStatus').innerHTML = `<span style="color:var(--green)">✓ Đã nộp bài thành công!</span>`;
+        else document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi xử lý: ${res.message}</span>`;
+      }).catch(err => {
+        document.getElementById('syncStatus').innerHTML = `<span style="color:var(--red)">Lỗi mạng. Bài làm đã lưu trên máy.</span>`;
+      });
+    }
+  }
+</script>
+</body>
+</html>
